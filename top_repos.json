@@ -1,0 +1,802 @@
+[
+    {
+        "name": "datasharing",
+        "full_name": "jtleek/datasharing",
+        "html_url": "https://github.com/jtleek/datasharing",
+        "forks_count": 243720,
+        "stargazers_count": 6586,
+        "description": "The Leek group guide to data sharing "
+    },
+    {
+        "name": "Spoon-Knife",
+        "full_name": "octocat/Spoon-Knife",
+        "html_url": "https://github.com/octocat/Spoon-Knife",
+        "forks_count": 149474,
+        "stargazers_count": 12862,
+        "description": "This repo is for demonstration purposes only."
+    },
+    {
+        "name": "ProgrammingAssignment2",
+        "full_name": "rdpeng/ProgrammingAssignment2",
+        "html_url": "https://github.com/rdpeng/ProgrammingAssignment2",
+        "forks_count": 143827,
+        "stargazers_count": 845,
+        "description": "Repository for Programming Assignment 2 for R Programming on Coursera"
+    },
+    {
+        "name": "SmartThingsPublic",
+        "full_name": "SmartThingsCommunity/SmartThingsPublic",
+        "html_url": "https://github.com/SmartThingsCommunity/SmartThingsPublic",
+        "forks_count": 89467,
+        "stargazers_count": 2585,
+        "description": "SmartThings open-source DeviceType Handlers and SmartApps code"
+    },
+    {
+        "name": "Complete-Python-3-Bootcamp",
+        "full_name": "Pierian-Data/Complete-Python-3-Bootcamp",
+        "html_url": "https://github.com/Pierian-Data/Complete-Python-3-Bootcamp",
+        "forks_count": 86151,
+        "stargazers_count": 28066,
+        "description": "Course Files for Complete Python 3 Bootcamp Course on Udemy"
+    },
+    {
+        "name": "first-contributions",
+        "full_name": "firstcontributions/first-contributions",
+        "html_url": "https://github.com/firstcontributions/first-contributions",
+        "forks_count": 83499,
+        "stargazers_count": 47079,
+        "description": "\ud83d\ude80\u2728 Help beginners to contribute to open source projects"
+    },
+    {
+        "name": "gitignore",
+        "full_name": "github/gitignore",
+        "html_url": "https://github.com/github/gitignore",
+        "forks_count": 83107,
+        "stargazers_count": 164782,
+        "description": "A collection of useful .gitignore templates"
+    },
+    {
+        "name": "bootstrap",
+        "full_name": "twbs/bootstrap",
+        "html_url": "https://github.com/twbs/bootstrap",
+        "forks_count": 79045,
+        "stargazers_count": 171675,
+        "description": "The most popular HTML, CSS, and JavaScript framework for developing responsive, mobile first projects on the web."
+    },
+    {
+        "name": "coding-interview-university",
+        "full_name": "jwasham/coding-interview-university",
+        "html_url": "https://github.com/jwasham/coding-interview-university",
+        "forks_count": 78045,
+        "stargazers_count": 312563,
+        "description": "A complete computer science study plan to become a software engineer."
+    },
+    {
+        "name": "css-exercises",
+        "full_name": "TheOdinProject/css-exercises",
+        "html_url": "https://github.com/TheOdinProject/css-exercises",
+        "forks_count": 76014,
+        "stargazers_count": 1759,
+        "description": null
+    },
+    {
+        "name": "tensorflow",
+        "full_name": "tensorflow/tensorflow",
+        "html_url": "https://github.com/tensorflow/tensorflow",
+        "forks_count": 74560,
+        "stargazers_count": 188352,
+        "description": "An Open Source Machine Learning Framework for Everyone"
+    },
+    {
+        "name": "cgm-remote-monitor",
+        "full_name": "nightscout/cgm-remote-monitor",
+        "html_url": "https://github.com/nightscout/cgm-remote-monitor",
+        "forks_count": 72046,
+        "stargazers_count": 2481,
+        "description": "nightscout web monitor"
+    },
+    {
+        "name": "free-programming-books",
+        "full_name": "EbookFoundation/free-programming-books",
+        "html_url": "https://github.com/EbookFoundation/free-programming-books",
+        "forks_count": 62907,
+        "stargazers_count": 351556,
+        "description": ":books: Freely available programming books"
+    },
+    {
+        "name": "NextChat",
+        "full_name": "ChatGPTNextWeb/NextChat",
+        "html_url": "https://github.com/ChatGPTNextWeb/NextChat",
+        "forks_count": 61156,
+        "stargazers_count": 81561,
+        "description": "\u2728 Light and Fast AI Assistant. Support: Web | iOS | MacOS | Android |  Linux | Windows"
+    },
+    {
+        "name": "docs",
+        "full_name": "github/docs",
+        "html_url": "https://github.com/github/docs",
+        "forks_count": 61078,
+        "stargazers_count": 17050,
+        "description": "The open-source repo for docs.github.com"
+    },
+    {
+        "name": "ExData_Plotting1",
+        "full_name": "rdpeng/ExData_Plotting1",
+        "html_url": "https://github.com/rdpeng/ExData_Plotting1",
+        "forks_count": 56680,
+        "stargazers_count": 282,
+        "description": "Plotting Assignment 1 for Exploratory Data Analysis"
+    },
+    {
+        "name": "opencv",
+        "full_name": "opencv/opencv",
+        "html_url": "https://github.com/opencv/opencv",
+        "forks_count": 56008,
+        "stargazers_count": 80862,
+        "description": "Open Source Computer Vision Library"
+    },
+    {
+        "name": "linux",
+        "full_name": "torvalds/linux",
+        "html_url": "https://github.com/torvalds/linux",
+        "forks_count": 55332,
+        "stargazers_count": 188916,
+        "description": "Linux kernel source tree"
+    },
+    {
+        "name": "tutorials",
+        "full_name": "eugenp/tutorials",
+        "html_url": "https://github.com/eugenp/tutorials",
+        "forks_count": 54419,
+        "stargazers_count": 37050,
+        "description": "Getting Started with Spring Boot 3: "
+    },
+    {
+        "name": "Python-100-Days",
+        "full_name": "jackfrued/Python-100-Days",
+        "html_url": "https://github.com/jackfrued/Python-100-Days",
+        "forks_count": 53034,
+        "stargazers_count": 161546,
+        "description": "Python - 100\u5929\u4ece\u65b0\u624b\u5230\u5927\u5e08"
+    },
+    {
+        "name": "ant-design",
+        "full_name": "ant-design/ant-design",
+        "html_url": "https://github.com/ant-design/ant-design",
+        "forks_count": 51372,
+        "stargazers_count": 93863,
+        "description": "An enterprise-class UI design language and React UI library"
+    },
+    {
+        "name": "CS-Notes",
+        "full_name": "CyC2018/CS-Notes",
+        "html_url": "https://github.com/CyC2018/CS-Notes",
+        "forks_count": 51207,
+        "stargazers_count": 179172,
+        "description": ":books: \u6280\u672f\u9762\u8bd5\u5fc5\u5907\u57fa\u7840\u77e5\u8bc6\u3001Leetcode\u3001\u8ba1\u7b97\u673a\u64cd\u4f5c\u7cfb\u7edf\u3001\u8ba1\u7b97\u673a\u7f51\u7edc\u3001\u7cfb\u7edf\u8bbe\u8ba1"
+    },
+    {
+        "name": "system-design-primer",
+        "full_name": "donnemartin/system-design-primer",
+        "html_url": "https://github.com/donnemartin/system-design-primer",
+        "forks_count": 48337,
+        "stargazers_count": 290698,
+        "description": "Learn how to design large-scale systems. Prep for the system design interview.  Includes Anki flashcards."
+    },
+    {
+        "name": "dio-lab-open-source",
+        "full_name": "digitalinnovationone/dio-lab-open-source",
+        "html_url": "https://github.com/digitalinnovationone/dio-lab-open-source",
+        "forks_count": 48276,
+        "stargazers_count": 6644,
+        "description": "Reposit\u00f3rio do lab \"Contribuindo em um Projeto Open Source no GitHub\" da Digital Innovation One."
+    },
+    {
+        "name": "react",
+        "full_name": "facebook/react",
+        "html_url": "https://github.com/facebook/react",
+        "forks_count": 47782,
+        "stargazers_count": 232824,
+        "description": "The library for web and native user interfaces."
+    },
+    {
+        "name": "Python",
+        "full_name": "TheAlgorithms/Python",
+        "html_url": "https://github.com/TheAlgorithms/Python",
+        "forks_count": 46328,
+        "stargazers_count": 197827,
+        "description": "All Algorithms implemented in Python"
+    },
+    {
+        "name": "academicpages.github.io",
+        "full_name": "academicpages/academicpages.github.io",
+        "html_url": "https://github.com/academicpages/academicpages.github.io",
+        "forks_count": 45942,
+        "stargazers_count": 13406,
+        "description": "Github Pages template based upon HTML and Markdown for personal, portfolio-based websites."
+    },
+    {
+        "name": "JavaGuide",
+        "full_name": "Snailclimb/JavaGuide",
+        "html_url": "https://github.com/Snailclimb/JavaGuide",
+        "forks_count": 45733,
+        "stargazers_count": 148454,
+        "description": "\u300cJava\u5b66\u4e60+\u9762\u8bd5\u6307\u5357\u300d\u4e00\u4efd\u6db5\u76d6\u5927\u90e8\u5206 Java \u7a0b\u5e8f\u5458\u6240\u9700\u8981\u638c\u63e1\u7684\u6838\u5fc3\u77e5\u8bc6\u3002\u51c6\u5907 Java \u9762\u8bd5\uff0c\u9996\u9009 JavaGuide\uff01"
+    },
+    {
+        "name": "models",
+        "full_name": "tensorflow/models",
+        "html_url": "https://github.com/tensorflow/models",
+        "forks_count": 45675,
+        "stargazers_count": 77427,
+        "description": "Models and examples built with TensorFlow"
+    },
+    {
+        "name": "AutoGPT",
+        "full_name": "Significant-Gravitas/AutoGPT",
+        "html_url": "https://github.com/Significant-Gravitas/AutoGPT",
+        "forks_count": 45189,
+        "stargazers_count": 172120,
+        "description": "AutoGPT is the vision of accessible AI for everyone, to use and to build on. Our mission is to provide the tools, so that you can focus on what matters."
+    },
+    {
+        "name": "it-cert-automation-practice",
+        "full_name": "google/it-cert-automation-practice",
+        "html_url": "https://github.com/google/it-cert-automation-practice",
+        "forks_count": 45102,
+        "stargazers_count": 912,
+        "description": "Google IT Automation with Python Professional Certificate - Practice files"
+    },
+    {
+        "name": "DO180-apps",
+        "full_name": "RedHatTraining/DO180-apps",
+        "html_url": "https://github.com/RedHatTraining/DO180-apps",
+        "forks_count": 43398,
+        "stargazers_count": 283,
+        "description": "DO180 Repository for Sample Applications"
+    },
+    {
+        "name": "patchwork",
+        "full_name": "jlord/patchwork",
+        "html_url": "https://github.com/jlord/patchwork",
+        "forks_count": 41763,
+        "stargazers_count": 1126,
+        "description": "All the Git-it Workshop completers! "
+    },
+    {
+        "name": "spring-boot",
+        "full_name": "spring-projects/spring-boot",
+        "html_url": "https://github.com/spring-projects/spring-boot",
+        "forks_count": 40952,
+        "stargazers_count": 76314,
+        "description": "Spring Boot helps you to create Spring-powered, production-grade applications and services with absolute minimum fuss."
+    },
+    {
+        "name": "qmk_firmware",
+        "full_name": "qmk/qmk_firmware",
+        "html_url": "https://github.com/qmk/qmk_firmware",
+        "forks_count": 40733,
+        "stargazers_count": 18805,
+        "description": "Open-source keyboard firmware for Atmel AVR and Arm USB families"
+    },
+    {
+        "name": "developer-roadmap",
+        "full_name": "kamranahmedse/developer-roadmap",
+        "html_url": "https://github.com/kamranahmedse/developer-roadmap",
+        "forks_count": 40419,
+        "stargazers_count": 309430,
+        "description": "Interactive roadmaps, guides and other educational content to help developers grow in their careers."
+    },
+    {
+        "name": "kubernetes",
+        "full_name": "kubernetes/kubernetes",
+        "html_url": "https://github.com/kubernetes/kubernetes",
+        "forks_count": 40339,
+        "stargazers_count": 113428,
+        "description": "Production-Grade Container Scheduling and Management"
+    },
+    {
+        "name": "freeCodeCamp",
+        "full_name": "freeCodeCamp/freeCodeCamp",
+        "html_url": "https://github.com/freeCodeCamp/freeCodeCamp",
+        "forks_count": 39077,
+        "stargazers_count": 410678,
+        "description": "freeCodeCamp.org's open-source codebase and curriculum. Learn to code for free."
+    },
+    {
+        "name": "JavaScript30",
+        "full_name": "wesbos/JavaScript30",
+        "html_url": "https://github.com/wesbos/JavaScript30",
+        "forks_count": 38879,
+        "stargazers_count": 28157,
+        "description": "30 Day Vanilla JS Challenge"
+    },
+    {
+        "name": "spring-framework",
+        "full_name": "spring-projects/spring-framework",
+        "html_url": "https://github.com/spring-projects/spring-framework",
+        "forks_count": 38390,
+        "stargazers_count": 57457,
+        "description": "Spring Framework"
+    },
+    {
+        "name": "generative-ai-for-beginners",
+        "full_name": "microsoft/generative-ai-for-beginners",
+        "html_url": "https://github.com/microsoft/generative-ai-for-beginners",
+        "forks_count": 37465,
+        "stargazers_count": 71903,
+        "description": "21 Lessons, Get Started Building with Generative AI  \ud83d\udd17 https://microsoft.github.io/generative-ai-for-beginners/"
+    },
+    {
+        "name": "RepData_PeerAssessment1",
+        "full_name": "rdpeng/RepData_PeerAssessment1",
+        "html_url": "https://github.com/rdpeng/RepData_PeerAssessment1",
+        "forks_count": 37039,
+        "stargazers_count": 102,
+        "description": "Peer Assessment 1 for Reproducible Research"
+    },
+    {
+        "name": "bitcoin",
+        "full_name": "bitcoin/bitcoin",
+        "html_url": "https://github.com/bitcoin/bitcoin",
+        "forks_count": 36869,
+        "stargazers_count": 82285,
+        "description": "Bitcoin Core integration/staging tree"
+    },
+    {
+        "name": "javascript-exercises",
+        "full_name": "TheOdinProject/javascript-exercises",
+        "html_url": "https://github.com/TheOdinProject/javascript-exercises",
+        "forks_count": 36695,
+        "stargazers_count": 1377,
+        "description": null
+    },
+    {
+        "name": "three.js",
+        "full_name": "mrdoob/three.js",
+        "html_url": "https://github.com/mrdoob/three.js",
+        "forks_count": 35575,
+        "stargazers_count": 104660,
+        "description": "JavaScript 3D Library."
+    },
+    {
+        "name": "jekyll-now",
+        "full_name": "barryclark/jekyll-now",
+        "html_url": "https://github.com/barryclark/jekyll-now",
+        "forks_count": 35232,
+        "stargazers_count": 8316,
+        "description": "Build a Jekyll blog in minutes, without touching the command line."
+    },
+    {
+        "name": "public-apis",
+        "full_name": "public-apis/public-apis",
+        "html_url": "https://github.com/public-apis/public-apis",
+        "forks_count": 34875,
+        "stargazers_count": 328890,
+        "description": "A collective list of free APIs"
+    },
+    {
+        "name": "vue",
+        "full_name": "vuejs/vue",
+        "html_url": "https://github.com/vuejs/vue",
+        "forks_count": 33718,
+        "stargazers_count": 208426,
+        "description": "This is the repo for Vue 2. For Vue 3, go to https://github.com/vuejs/core"
+    },
+    {
+        "name": "You-Dont-Know-JS",
+        "full_name": "getify/You-Dont-Know-JS",
+        "html_url": "https://github.com/getify/You-Dont-Know-JS",
+        "forks_count": 33595,
+        "stargazers_count": 181188,
+        "description": "A book series (2 published editions) on the JS language."
+    },
+    {
+        "name": "edgetunnel",
+        "full_name": "zizifn/edgetunnel",
+        "html_url": "https://github.com/zizifn/edgetunnel",
+        "forks_count": 33115,
+        "stargazers_count": 7679,
+        "description": "Running V2ray inside edge/serverless runtime"
+    },
+    {
+        "name": "core",
+        "full_name": "home-assistant/core",
+        "html_url": "https://github.com/home-assistant/core",
+        "forks_count": 32725,
+        "stargazers_count": 76852,
+        "description": ":house_with_garden: Open source home automation that puts local control and privacy first."
+    },
+    {
+        "name": "material-ui",
+        "full_name": "mui/material-ui",
+        "html_url": "https://github.com/mui/material-ui",
+        "forks_count": 32515,
+        "stargazers_count": 94929,
+        "description": "Material UI: Comprehensive React component library that implements Google's Material Design. Free forever."
+    },
+    {
+        "name": "django",
+        "full_name": "django/django",
+        "html_url": "https://github.com/django/django",
+        "forks_count": 32320,
+        "stargazers_count": 82559,
+        "description": "The Web framework for perfectionists with deadlines."
+    },
+    {
+        "name": "build-your-own-x",
+        "full_name": "codecrafters-io/build-your-own-x",
+        "html_url": "https://github.com/codecrafters-io/build-your-own-x",
+        "forks_count": 32123,
+        "stargazers_count": 346510,
+        "description": "Master programming by recreating your favorite technologies from scratch."
+    },
+    {
+        "name": "courses",
+        "full_name": "DataScienceSpecialization/courses",
+        "html_url": "https://github.com/DataScienceSpecialization/courses",
+        "forks_count": 31332,
+        "stargazers_count": 4079,
+        "description": "Course materials for the Data Science Specialization: https://www.coursera.org/specialization/jhudatascience/1"
+    },
+    {
+        "name": "cpython",
+        "full_name": "python/cpython",
+        "html_url": "https://github.com/python/cpython",
+        "forks_count": 31234,
+        "stargazers_count": 65559,
+        "description": "The Python programming language"
+    },
+    {
+        "name": "BPB-Worker-Panel",
+        "full_name": "bia-pain-bache/BPB-Worker-Panel",
+        "html_url": "https://github.com/bia-pain-bache/BPB-Worker-Panel",
+        "forks_count": 30917,
+        "stargazers_count": 6797,
+        "description": "A GUI Panel providing Worker subscriptions for VLESS, Trojan and Warp configs alongside chain proxies, offering full DNS, clean IP,  Fragment, Warp, Warp pro and routing settings for cross-platform clients using Sing-box, Clash/Mihomo and Xray cores."
+    },
+    {
+        "name": "vscode",
+        "full_name": "microsoft/vscode",
+        "html_url": "https://github.com/microsoft/vscode",
+        "forks_count": 30785,
+        "stargazers_count": 168016,
+        "description": "Visual Studio Code"
+    },
+    {
+        "name": "node",
+        "full_name": "nodejs/node",
+        "html_url": "https://github.com/nodejs/node",
+        "forks_count": 30779,
+        "stargazers_count": 109949,
+        "description": "Node.js JavaScript runtime \u2728\ud83d\udc22\ud83d\ude80\u2728"
+    },
+    {
+        "name": "vue-element-admin",
+        "full_name": "PanJiaChen/vue-element-admin",
+        "html_url": "https://github.com/PanJiaChen/vue-element-admin",
+        "forks_count": 30536,
+        "stargazers_count": 88822,
+        "description": ":tada: A magical vue admin                                                                https://panjiachen.github.io/vue-element-admin"
+    },
+    {
+        "name": "javascript-algorithms",
+        "full_name": "trekhleb/javascript-algorithms",
+        "html_url": "https://github.com/trekhleb/javascript-algorithms",
+        "forks_count": 30509,
+        "stargazers_count": 190292,
+        "description": "\ud83d\udcdd Algorithms and data structures implemented in JavaScript with explanations and links to further readings"
+    },
+    {
+        "name": "simple-java-maven-app",
+        "full_name": "jenkins-docs/simple-java-maven-app",
+        "html_url": "https://github.com/jenkins-docs/simple-java-maven-app",
+        "forks_count": 30356,
+        "stargazers_count": 474,
+        "description": "For an introductory tutorial on how to use Jenkins to build a simple Java application with Maven."
+    },
+    {
+        "name": "DefinitelyTyped",
+        "full_name": "DefinitelyTyped/DefinitelyTyped",
+        "html_url": "https://github.com/DefinitelyTyped/DefinitelyTyped",
+        "forks_count": 30338,
+        "stargazers_count": 49307,
+        "description": "The repository for high quality TypeScript type definitions."
+    },
+    {
+        "name": "kickstart.nvim",
+        "full_name": "nvim-lua/kickstart.nvim",
+        "html_url": "https://github.com/nvim-lua/kickstart.nvim",
+        "forks_count": 29117,
+        "stargazers_count": 22201,
+        "description": "A launch point for your personal nvim configuration"
+    },
+    {
+        "name": "mall",
+        "full_name": "macrozheng/mall",
+        "html_url": "https://github.com/macrozheng/mall",
+        "forks_count": 29048,
+        "stargazers_count": 79289,
+        "description": "mall\u9879\u76ee\u662f\u4e00\u5957\u7535\u5546\u7cfb\u7edf\uff0c\u5305\u62ec\u524d\u53f0\u5546\u57ce\u7cfb\u7edf\u53ca\u540e\u53f0\u7ba1\u7406\u7cfb\u7edf\uff0c\u57fa\u4e8eSpring Boot+MyBatis\u5b9e\u73b0\uff0c\u91c7\u7528Docker\u5bb9\u5668\u5316\u90e8\u7f72\u3002 \u524d\u53f0\u5546\u57ce\u7cfb\u7edf\u5305\u542b\u9996\u9875\u95e8\u6237\u3001\u5546\u54c1\u63a8\u8350\u3001\u5546\u54c1\u641c\u7d22\u3001\u5546\u54c1\u5c55\u793a\u3001\u8d2d\u7269\u8f66\u3001\u8ba2\u5355\u6d41\u7a0b\u3001\u4f1a\u5458\u4e2d\u5fc3\u3001\u5ba2\u6237\u670d\u52a1\u3001\u5e2e\u52a9\u4e2d\u5fc3\u7b49\u6a21\u5757\u3002 \u540e\u53f0\u7ba1\u7406\u7cfb\u7edf\u5305\u542b\u5546\u54c1\u7ba1\u7406\u3001\u8ba2\u5355\u7ba1\u7406\u3001\u4f1a\u5458\u7ba1\u7406\u3001\u4fc3\u9500\u7ba1\u7406\u3001\u8fd0\u8425\u7ba1\u7406\u3001\u5185\u5bb9\u7ba1\u7406\u3001\u7edf\u8ba1\u62a5\u8868\u3001\u8d22\u52a1\u7ba1\u7406\u3001\u6743\u9650\u7ba1\u7406\u3001\u8bbe\u7f6e\u7b49\u6a21\u5757\u3002"
+    },
+    {
+        "name": "awesome",
+        "full_name": "sindresorhus/awesome",
+        "html_url": "https://github.com/sindresorhus/awesome",
+        "forks_count": 28629,
+        "stargazers_count": 349613,
+        "description": "\ud83d\ude0e Awesome lists about all kinds of interesting topics"
+    },
+    {
+        "name": "project-based-learning",
+        "full_name": "practical-tutorials/project-based-learning",
+        "html_url": "https://github.com/practical-tutorials/project-based-learning",
+        "forks_count": 28622,
+        "stargazers_count": 219490,
+        "description": "Curated list of project-based tutorials"
+    },
+    {
+        "name": "spark",
+        "full_name": "apache/spark",
+        "html_url": "https://github.com/apache/spark",
+        "forks_count": 28527,
+        "stargazers_count": 40653,
+        "description": "Apache Spark - A unified analytics engine for large-scale data processing"
+    },
+    {
+        "name": "free-programming-books-zh_CN",
+        "full_name": "justjavac/free-programming-books-zh_CN",
+        "html_url": "https://github.com/justjavac/free-programming-books-zh_CN",
+        "forks_count": 28261,
+        "stargazers_count": 112776,
+        "description": ":books: \u514d\u8d39\u7684\u8ba1\u7b97\u673a\u7f16\u7a0b\u7c7b\u4e2d\u6587\u4e66\u7c4d\uff0c\u6b22\u8fce\u6295\u7a3f"
+    },
+    {
+        "name": "transformers",
+        "full_name": "huggingface/transformers",
+        "html_url": "https://github.com/huggingface/transformers",
+        "forks_count": 28179,
+        "stargazers_count": 140531,
+        "description": "\ud83e\udd17 Transformers: State-of-the-art Machine Learning for Pytorch, TensorFlow, and JAX."
+    },
+    {
+        "name": "flutter",
+        "full_name": "flutter/flutter",
+        "html_url": "https://github.com/flutter/flutter",
+        "forks_count": 28119,
+        "stargazers_count": 168940,
+        "description": "Flutter makes it easy and fast to build beautiful apps for mobile and beyond"
+    },
+    {
+        "name": "next.js",
+        "full_name": "vercel/next.js",
+        "html_url": "https://github.com/vercel/next.js",
+        "forks_count": 27807,
+        "stargazers_count": 129851,
+        "description": "The React Framework"
+    },
+    {
+        "name": "stable-diffusion-webui",
+        "full_name": "AUTOMATIC1111/stable-diffusion-webui",
+        "html_url": "https://github.com/AUTOMATIC1111/stable-diffusion-webui",
+        "forks_count": 27801,
+        "stargazers_count": 148791,
+        "description": "Stable Diffusion web UI"
+    },
+    {
+        "name": "angular.js",
+        "full_name": "angular/angular.js",
+        "html_url": "https://github.com/angular/angular.js",
+        "forks_count": 27434,
+        "stargazers_count": 58748,
+        "description": "AngularJS - HTML enhanced for web apps!"
+    },
+    {
+        "name": "mslearn-tailspin-spacegame-web",
+        "full_name": "MicrosoftDocs/mslearn-tailspin-spacegame-web",
+        "html_url": "https://github.com/MicrosoftDocs/mslearn-tailspin-spacegame-web",
+        "forks_count": 27386,
+        "stargazers_count": 184,
+        "description": "Code used in Microsoft Learn modules to support Azure DevOps"
+    },
+    {
+        "name": "learning-area",
+        "full_name": "mdn/learning-area",
+        "html_url": "https://github.com/mdn/learning-area",
+        "forks_count": 27229,
+        "stargazers_count": 7159,
+        "description": "GitHub repo for the MDN Learning Area. "
+    },
+    {
+        "name": "create-react-app",
+        "full_name": "facebook/create-react-app",
+        "html_url": "https://github.com/facebook/create-react-app",
+        "forks_count": 26981,
+        "stargazers_count": 103115,
+        "description": "Set up a modern web app by running one command."
+    },
+    {
+        "name": "dotfiles",
+        "full_name": "lewagon/dotfiles",
+        "html_url": "https://github.com/lewagon/dotfiles",
+        "forks_count": 26919,
+        "stargazers_count": 21030,
+        "description": "Default configuration for Le Wagon's students"
+    },
+    {
+        "name": "java-design-patterns",
+        "full_name": "iluwatar/java-design-patterns",
+        "html_url": "https://github.com/iluwatar/java-design-patterns",
+        "forks_count": 26831,
+        "stargazers_count": 90894,
+        "description": "Design patterns implemented in Java"
+    },
+    {
+        "name": "javascript",
+        "full_name": "airbnb/javascript",
+        "html_url": "https://github.com/airbnb/javascript",
+        "forks_count": 26668,
+        "stargazers_count": 146187,
+        "description": "JavaScript Style Guide"
+    },
+    {
+        "name": "odoo",
+        "full_name": "odoo/odoo",
+        "html_url": "https://github.com/odoo/odoo",
+        "forks_count": 26616,
+        "stargazers_count": 40964,
+        "description": "Odoo. Open Source Apps To Grow Your Business."
+    },
+    {
+        "name": "dubbo",
+        "full_name": "apache/dubbo",
+        "html_url": "https://github.com/apache/dubbo",
+        "forks_count": 26487,
+        "stargazers_count": 40765,
+        "description": "The java implementation of Apache Dubbo. An RPC and microservice framework."
+    },
+    {
+        "name": "streamlit-example",
+        "full_name": "streamlit/streamlit-example",
+        "html_url": "https://github.com/streamlit/streamlit-example",
+        "forks_count": 26157,
+        "stargazers_count": 356,
+        "description": "Example Streamlit app that you can fork to test out share.streamlit.io"
+    },
+    {
+        "name": "minimal-mistakes",
+        "full_name": "mmistakes/minimal-mistakes",
+        "html_url": "https://github.com/mmistakes/minimal-mistakes",
+        "forks_count": 26159,
+        "stargazers_count": 12728,
+        "description": ":triangular_ruler: Jekyll theme for building a personal site, blog, project documentation, or portfolio."
+    },
+    {
+        "name": "ohmyzsh",
+        "full_name": "ohmyzsh/ohmyzsh",
+        "html_url": "https://github.com/ohmyzsh/ohmyzsh",
+        "forks_count": 26014,
+        "stargazers_count": 176445,
+        "description": "\ud83d\ude43   A delightful community-driven (with 2,400+ contributors) framework for managing your zsh configuration. Includes 300+ optional plugins (rails, git, macOS, hub, docker, homebrew, node, php, python, etc), 140+ themes to spice up your morning, and an auto-update tool that makes it easy to keep up with the latest updates from the community."
+    },
+    {
+        "name": "git",
+        "full_name": "git/git",
+        "html_url": "https://github.com/git/git",
+        "forks_count": 25950,
+        "stargazers_count": 53717,
+        "description": "Git Source Code Mirror - This is a publish-only repository but pull requests can be turned into patches to the mailing list via GitGitGadget (https://gitgitgadget.github.io/). Please follow Documentation/SubmittingPatches procedure for any of your improvements."
+    },
+    {
+        "name": "angular",
+        "full_name": "angular/angular",
+        "html_url": "https://github.com/angular/angular",
+        "forks_count": 25920,
+        "stargazers_count": 97093,
+        "description": "Deliver web apps with confidence \ud83d\ude80"
+    },
+    {
+        "name": "swot",
+        "full_name": "leereilly/swot",
+        "html_url": "https://github.com/leereilly/swot",
+        "forks_count": 25784,
+        "stargazers_count": 1136,
+        "description": ":school: Identify email addresses or domains names that belong to colleges or universities. Help automate the process of approving or rejecting academic discounts."
+    },
+    {
+        "name": "scikit-learn",
+        "full_name": "scikit-learn/scikit-learn",
+        "html_url": "https://github.com/scikit-learn/scikit-learn",
+        "forks_count": 25641,
+        "stargazers_count": 61304,
+        "description": "scikit-learn: machine learning in Python"
+    },
+    {
+        "name": "awesome-python",
+        "full_name": "vinta/awesome-python",
+        "html_url": "https://github.com/vinta/awesome-python",
+        "forks_count": 25359,
+        "stargazers_count": 235866,
+        "description": "An opinionated list of awesome Python frameworks, libraries, software and resources."
+    },
+    {
+        "name": "AspNetCore.Docs",
+        "full_name": "dotnet/AspNetCore.Docs",
+        "html_url": "https://github.com/dotnet/AspNetCore.Docs",
+        "forks_count": 25218,
+        "stargazers_count": 12771,
+        "description": "Documentation for ASP.NET Core"
+    },
+    {
+        "name": "elasticsearch",
+        "full_name": "elastic/elasticsearch",
+        "html_url": "https://github.com/elastic/elasticsearch",
+        "forks_count": 25102,
+        "stargazers_count": 71811,
+        "description": "Free and Open Source, Distributed, RESTful Search Engine"
+    },
+    {
+        "name": "spring-petclinic",
+        "full_name": "spring-projects/spring-petclinic",
+        "html_url": "https://github.com/spring-projects/spring-petclinic",
+        "forks_count": 24673,
+        "stargazers_count": 8003,
+        "description": "A sample Spring-based application"
+    },
+    {
+        "name": "react-native",
+        "full_name": "facebook/react-native",
+        "html_url": "https://github.com/facebook/react-native",
+        "forks_count": 24530,
+        "stargazers_count": 120837,
+        "description": "A framework for building native applications using React"
+    },
+    {
+        "name": "jbbmo-Introduction-to-Git-and-GitHub",
+        "full_name": "ibm-developer-skills-network/jbbmo-Introduction-to-Git-and-GitHub",
+        "html_url": "https://github.com/ibm-developer-skills-network/jbbmo-Introduction-to-Git-and-GitHub",
+        "forks_count": 24885,
+        "stargazers_count": 64,
+        "description": "Introduction to Git and GitHub"
+    },
+    {
+        "name": "Curso.Prep.Henry",
+        "full_name": "atralice/Curso.Prep.Henry",
+        "html_url": "https://github.com/atralice/Curso.Prep.Henry",
+        "forks_count": 24426,
+        "stargazers_count": 946,
+        "description": "Curso de Preparaci\u00f3n para Ingresar a Henry."
+    },
+    {
+        "name": "laravel",
+        "full_name": "laravel/laravel",
+        "html_url": "https://github.com/laravel/laravel",
+        "forks_count": 24221,
+        "stargazers_count": 80109,
+        "description": "Laravel is a web application framework with expressive, elegant syntax. We\u2019ve already laid the foundation for your next big idea \u2014 freeing you to create without sweating the small things."
+    },
+    {
+        "name": "SecLists",
+        "full_name": "danielmiessler/SecLists",
+        "html_url": "https://github.com/danielmiessler/SecLists",
+        "forks_count": 24170,
+        "stargazers_count": 61141,
+        "description": "SecLists is the security tester's companion. It's a collection of multiple types of lists used during security assessments, collected in one place. List types include usernames, passwords, URLs, sensitive data patterns, fuzzing payloads, web shells, and many more."
+    },
+    {
+        "name": "ansible",
+        "full_name": "ansible/ansible",
+        "html_url": "https://github.com/ansible/ansible",
+        "forks_count": 23986,
+        "stargazers_count": 64206,
+        "description": "Ansible is a radically simple IT automation platform that makes your applications and systems easier to deploy and maintain. Automate everything from code deployment to network configuration to cloud management, in a language that approaches plain English, using SSH, with no agents to install on remote systems. https://docs.ansible.com."
+    },
+    {
+        "name": "github-readme-stats",
+        "full_name": "anuraghazra/github-readme-stats",
+        "html_url": "https://github.com/anuraghazra/github-readme-stats",
+        "forks_count": 23955,
+        "stargazers_count": 71747,
+        "description": ":zap: Dynamically generated stats for your github readmes"
+    }
+]
