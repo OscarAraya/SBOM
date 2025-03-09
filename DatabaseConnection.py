@@ -71,13 +71,21 @@ def insert_cve_mapping(conn, cursor, tag_name, json_file):
     with open(json_file, 'r', encoding='utf-8') as file:
         data = json.load(file)
 
-    for cve_id in data:
+    for item in data:
+        cve_id = item.get('cve_id')
+        artifact_name = item.get('artifact_name')
+        artifact_version = item.get('artifact_version')
+        # You can process the URLs if needed, for now they are not inserted into the DB
+        urls = item.get('urls')
+        
         cursor.execute("""
-            INSERT INTO CVE_Mapping (repo_id, tag_name, cve_id)
-            VALUES (1, ?, ?)
+            INSERT INTO CVE_Mapping (repo_id, tag_name, cve_id, artifact_name, artifact_version)
+            VALUES (1, ?, ?, ?, ?)
         """, (
             tag_name,
-            cve_id
+            cve_id,
+            artifact_name,
+            artifact_version
         ))
         
     conn.commit()

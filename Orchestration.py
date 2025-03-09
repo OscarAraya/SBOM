@@ -98,33 +98,47 @@ def get_cve_details(cve_id, retries=3):
 def analyze_vulnerabilities(grype_output, tag):
     with open(grype_output, "r", encoding='utf-8') as f:
         data = json.load(f)
-    """
-    cve_analysis = {}
+    
+    cve_analysis = {}  # Dictionary to store CVE details with additional information
+    
+    # Iterate over the matches and related vulnerabilities
     for match in data.get("matches", []):
+        artifact_name = match.get("artifact", {}).get("name")
+        artifact_version = match.get("artifact", {}).get("version")
+        cve_urls = match.get("vulnerability", {}).get("urls", [])
+        
         related_vulns = match.get("relatedVulnerabilities", [])
+        
         for vuln in related_vulns:
             cve_id = vuln.get("id")
             if cve_id:
-                cve_analysis[cve_id] = get_cve_details(cve_id)
-                """
+                # If the CVE is not already in the analysis, initialize it
+                if cve_id not in cve_analysis:
+                    cve_analysis[cve_id] = {
+                        "cve_id": cve_id,
+                        "artifact_name": artifact_name,
+                        "artifact_version": artifact_version,
+                        "urls": cve_urls
+                    }
+                # If already present, append the artifact details to match the current entry
+                else:
+                    cve_analysis[cve_id]["artifact_name"] = artifact_name
+                    cve_analysis[cve_id]["artifact_version"] = artifact_version
+                    cve_analysis[cve_id]["urls"].extend(cve_urls)
 
-    cve_ids = set()  # Use a set to avoid duplicate CVE IDs
-    for match in data.get("matches", []):
-        related_vulns = match.get("relatedVulnerabilities", [])
-        for vuln in related_vulns:
-            cve_id = vuln.get("id")
-            if cve_id:
-                cve_ids.add(cve_id)
+    # Create a list of CVEs with added artifact details
+    cve_ids_list = [{"cve_id": cve_id, 
+                     "artifact_name": details["artifact_name"], 
+                     "artifact_version": details["artifact_version"], 
+                     "urls": details["urls"]} 
+                    for cve_id, details in cve_analysis.items()]
     
-    # Convert the set to a list for JSON serialization
-    cve_ids_list = list(cve_ids)
-    
-    with open(f"{tag}.cve_analysis.json", "w") as f:
+    # Save the CVE analysis with the added details
+    with open(f"{tag}.cve_analysis.json", "w", encoding='utf-8') as f:
         json.dump(cve_ids_list, f, indent=4)
     
     print(f"CVE analysis saved to {tag}.cve_analysis.json")
     return cve_ids_list
-    #return cve_analysis
 
 def main():
     repo_full_name = "tensorflow/tensorflow" # vercel/next.js - tensorflow/tensorflow
