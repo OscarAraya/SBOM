@@ -1,4 +1,4 @@
-﻿repo_name,tag_name,prerelease,published_at,cve_id,artifact_name,artifact_version,severity,cvss_version,vector_string,base_score,impact_score,asexploitability_score
+﻿repo_name,tag_name,prerelease,published_at,cve_id,artifact_name,artifact_version,severity,cvss_version,vector_string,base_score,impact_score,exploitability_score
 tensorflow/tensorflow,v2.6.5,0,2022-05-23 16:59:45.000,CVE-2022-23584,tensorflow,2.5.0,MEDIUM,CVSSv3.1,CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:N/I:N/A:H,6.5,3.6,2.8
 tensorflow/tensorflow,v2.6.5,0,2022-05-23 16:59:45.000,CVE-2022-23591,tensorflow,2.5.0,HIGH,CVSSv3.1,CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H,7.5,3.6,3.9
 tensorflow/tensorflow,v2.6.5,0,2022-05-23 16:59:45.000,CVE-2022-21726,tensorflow,2.5.0,HIGH,CVSSv3.1,CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H,8.8,5.9,2.8
