@@ -1,91 +1,96 @@
+"""
+simulate_incidents.py
+
+Simulate security incidents for each vulnerability in a real dataset (e.g. TensorFlowData.csv),
+comparing scenarios with and without SBOM usage.
+
+References:
+ - ISO/IEC 27001:2022 (Risk-based approach to security controls)
+ - ISO/IEC 27004:2016 (Security metrics and measurement)
+ - Example sources for SBOM effectiveness: 
+   [Peeters, 2023], [Checkmarx, 2023], [Balbix, 2023].
+"""
+
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-import seaborn as sns
 
-# 1. Load the data
-df = pd.read_csv("Data.csv")
+# 1. Load the real dataset (TensorFlowData.csv).
+#    Assumption: The CSV has columns like ["Release","Vulnerability","CVSS","Description",...]
+#    Adjust the column names as needed for your actual data.
+df = pd.read_csv("TensorFlowData.csv")
 
-# 2. Convert published_at to datetime
-df["published_at"] = pd.to_datetime(df["published_at"])
+# 2. Convert the CVSS scores into severity bins if not already binned.
+#    (High-level example bins: 0-4=Low, 4-7=Medium, 7-10=High).
+#    You can adjust the bins and labels based on your data.
+bins = [0, 4, 7, 10]
+labels = ["Low", "Medium", "High"]
+df["Severity"] = pd.cut(df["base_score"], bins=bins, labels=labels, include_lowest=True)
 
-# 3. Filter out invalid rows (if necessary)
-df = df[df['base_score'] > 0]
+# 3. Assign a base incident probability for each severity WITHOUT SBOM.
+#    This is a simplified assumption; adjust to reflect real-world rates or use EPSS-based data.
+prob_mapping_without_sbom = {
+    "Low": 0.10,     # 10% chance leads to incident
+    "Medium": 0.40,  # 40% chance leads to incident
+    "High": 0.80     # 80% chance leads to incident
+}
 
-# 4. Map base_score to incident probabilities (No SBOM)
-df['incident_prob_no_sbom'] = pd.cut(
-    df['base_score'],
-    bins=[0, 3.9, 6.9, 8.9, 10.0],   # CVSS ranges
-    labels=[0.10, 0.30, 0.60, 0.80]  # Probabilities
-).astype(float)
+# 4. Assign a reduced incident probability WITH SBOM.
+#    We assume SBOM usage lowers each severity's exploitation probability.
+prob_mapping_with_sbom = {
+    "Low": 0.05,     # from 10% down to 5%
+    "Medium": 0.25,  # from 40% down to 25%
+    "High": 0.60     # from 80% down to 60%
+}
 
-# 5. Simulate incidents (No SBOM)
-np.random.seed(42)  # For reproducibility
-df['incident_occurred_no_sbom'] = (
-    np.random.rand(len(df)) < df['incident_prob_no_sbom']
-)
+# 5. Simulate incidents.
+#    We'll do a single pass for demonstration, but you can wrap this in Monte Carlo if desired.
+np.random.seed(42)  # for reproducibility
 
-# 6. Aggregate incidents by release (No SBOM)
-incidents_by_release_no_sbom = (
-    df.groupby('tag_name')['incident_occurred_no_sbom']
-      .sum()  # Sum of True=1
-      .astype(int)
-)
+def simulate_incidents(df, prob_mapping):
+    """Return a DataFrame containing whether each vuln was 'Incident=1' or not 'Incident=0'."""
+    # Copy original
+    df_sim = df.copy()
+    # Assign random "incident" outcome based on severity probabilities
+    incident_flags = []
+    for severity in df_sim["Severity"]:
+        base_prob = prob_mapping.get(severity, 0.0)
+        # random draw for each vulnerability
+        incident_occurred = 1 if np.random.rand() < base_prob else 0
+        incident_flags.append(incident_occurred)
+    df_sim["Incident"] = incident_flags
+    return df_sim
 
-# 7. Map base_score to incident probabilities (With SBOM)
-df['incident_prob_sbom'] = pd.cut(
-    df['base_score'],
-    bins=[0, 3.9, 6.9, 8.9, 10.0],   # same CVSS ranges
-    labels=[0.05, 0.15, 0.40, 0.60]  # reduced probabilities
-).astype(float)
+df_no_sbom = simulate_incidents(df, prob_mapping_without_sbom)
+df_sbom = simulate_incidents(df, prob_mapping_with_sbom)
 
-# 8. Simulate incidents (With SBOM)
-np.random.seed(42)
-df['incident_occurred_sbom'] = (
-    np.random.rand(len(df)) < df['incident_prob_sbom']
-)
+# 6. Count total incidents (or group by Release for a more granular view).
+incidents_without_sbom = df_no_sbom["Incident"].sum()
+incidents_with_sbom = df_sbom["Incident"].sum()
 
-# 9. Aggregate incidents by release (With SBOM)
-incidents_by_release_sbom = (
-    df.groupby('tag_name')['incident_occurred_sbom']
-      .sum()
-      .astype(int)
-)
+print(f"Total Incidents Without SBOM: {incidents_without_sbom}")
+print(f"Total Incidents With SBOM:    {incidents_with_sbom}")
 
-# 10. Combine both aggregates into a single DataFrame for the heatmap
-heatmap_data = pd.DataFrame({
-    'No SBOM': incidents_by_release_no_sbom,
-    'With SBOM': incidents_by_release_sbom
-})
+# 7. Optionally group by release and create a bar chart or heatmap to visualize incidents.
+incidents_by_release_no_sbom = df_no_sbom.groupby("tag_name")["Incident"].sum()
+incidents_by_release_sbom = df_sbom.groupby("tag_name")["Incident"].sum()
 
-# 11. Get earliest publish date per release
-date_per_release = df.groupby("tag_name")["published_at"].min()
+releases = incidents_by_release_no_sbom.index
+vals_no_sbom = incidents_by_release_no_sbom.values
+vals_sbom = incidents_by_release_sbom.values
 
-# 12. Merge date info, sort by published_at, then remove it
-heatmap_data = heatmap_data.join(date_per_release)
-heatmap_data.sort_values("published_at", inplace=True)
-heatmap_data.drop(columns="published_at", inplace=True)
+# Plot bar chart comparing the sum of incidents per release side-by-side.
+plt.figure(figsize=(10, 6))
+index = np.arange(len(releases))
+width = 0.35
 
-# 13. Create the heatmap
-plt.figure(figsize=(12, 8))  # Larger figure for readability
-sns.set(font_scale=1.1)      # Slightly larger font
+plt.bar(index, vals_no_sbom, width, label='No SBOM')
+plt.bar(index + width, vals_sbom, width, label='With SBOM')
 
-ax = sns.heatmap(
-    heatmap_data,
-    annot=True,             # Show incident counts in each cell
-    fmt="d",                # Integer formatting (no scientific notation)
-    cmap="Reds",            # Color palette
-    linewidths=0.5,         # Thin lines between cells
-    cbar_kws={"label": "Number of Incidents"}
-)
-
-ax.set_xlabel("Scenario")
-ax.set_ylabel("Release Tag")
-ax.set_title("Security Incidents Over Time: With vs. Without SBOM")
-
-# Rotate axis labels if needed
-plt.xticks(rotation=0)   # Keep 'No SBOM' / 'With SBOM' horizontal
-plt.yticks(rotation=0)   # Keep release tags horizontal
-
+plt.xlabel('Release')
+plt.ylabel('Number of Incidents')
+plt.title('Simulated Incidents by Release: No SBOM vs With SBOM')
+plt.xticks(index + width/2, releases, rotation=90)
+plt.legend()
 plt.tight_layout()
 plt.show()
