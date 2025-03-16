@@ -1,157 +1,108 @@
-import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
+import pandas as pd, numpy as np, matplotlib.pyplot as plt, seaborn as sns
 
-# -------------------------------------------------------------------------
-# 1. Load dataset (Adjust file path as needed)
-# -------------------------------------------------------------------------
-df = pd.read_csv("TensorFlowData.csv")
+# 1. Load the dataset
+df = pd.read_csv("Angular.csv")
 
-# Ensure needed columns exist (e.g. 'base_score', 'tag_name', 'published_at')
-# This snippet assumes your CSV has columns: 'base_score', 'tag_name', 'published_at'.
-# If your column names differ, adjust accordingly.
+# Ensure required columns are present
+assert {'base_score','tag_name','published_at'}.issubset(df.columns)
 
-# -------------------------------------------------------------------------
-# 2. Define probability mapping logic
-#    You can adjust these to reflect more realistic or research-based values
-# -------------------------------------------------------------------------
+# 2. Define incident probability mapping (as discussed earlier)
 def get_incident_probability(base_score, sbom=False):
-    """
-    Returns the probability of an incident for a given CVSS base_score.
-    If sbom=True, we assume the probability is lower due to better remediation via SBOM.
-    """
-    # Example severity cuts:
-    #  - [0.0, 3.9] = Low
-    #  - [4.0, 6.9] = Medium
-    #  - [7.0, 8.9] = High
-    #  - [9.0, 10.0] = Critical
-    
-    # You can tweak these base probabilities:
-    if base_score <= 3.9:
-        prob_no_sbom = 0.02
-        prob_sbom = 0.01
-    elif base_score <= 6.9:
-        prob_no_sbom = 0.10
-        prob_sbom = 0.05
-    elif base_score <= 8.9:
-        prob_no_sbom = 0.25
-        prob_sbom = 0.15
-    else:  # 9.0 to 10.0
-        prob_no_sbom = 0.40
-        prob_sbom = 0.25
-    
-    return prob_sbom if sbom else prob_no_sbom
+    if base_score <= 3.9:      # Low severity
+        p_no, p_sbom = 0.02, 0.01
+    elif base_score <= 6.9:    # Medium severity
+        p_no, p_sbom = 0.10, 0.05
+    elif base_score <= 8.9:    # High severity
+        p_no, p_sbom = 0.25, 0.15
+    else:                      # Critical severity
+        p_no, p_sbom = 0.40, 0.25
+    return p_sbom if sbom else p_no
 
-# -------------------------------------------------------------------------
-# 3. Precompute severity-based probabilities for each row
-# -------------------------------------------------------------------------
 df['incident_prob_no_sbom'] = df['base_score'].apply(lambda s: get_incident_probability(s, sbom=False))
 df['incident_prob_sbom']    = df['base_score'].apply(lambda s: get_incident_probability(s, sbom=True))
+df['incident_weight'] = df['base_score']  # use base_score as weight for impact
 
-# Optional: Weighted approach – using base_score as weight or define custom weighting
-# E.g., could do weight = base_score or map severity to numeric weight
-df['incident_weight'] = df['base_score']  # using CVSS base_score as the "weight" of the incident
-
-# -------------------------------------------------------------------------
-# 4. Multiple Simulation Runs
-# -------------------------------------------------------------------------
+# 3. Run Monte Carlo simulations
 num_simulations = 100
+results = []
+for sim in range(num_simulations):
+    np.random.seed(sim)
+    # Random draws for each vulnerability in each scenario
+    rand_no_sbom = np.random.rand(len(df))
+    rand_sbom    = np.random.rand(len(df))
+    # Determine if incident occurs (True/False)
+    df['incident_occ_no'] = rand_no_sbom < df['incident_prob_no_sbom']
+    df['incident_occ_sbom']= rand_sbom    < df['incident_prob_sbom']
+    # Compute weighted incidents
+    df['inc_weight_no']   = df['incident_weight'] * df['incident_occ_no']
+    df['inc_weight_sbom'] = df['incident_weight'] * df['incident_occ_sbom']
+    # Aggregate by release
+    agg = df.groupby('tag_name').agg({
+        'incident_occ_no':'sum', 'incident_occ_sbom':'sum',
+        'inc_weight_no':'sum',  'inc_weight_sbom':'sum'
+    }).reset_index()
+    agg['simulation'] = sim
+    results.append(agg)
+all_sims_df = pd.concat(results, ignore_index=True)
 
-# We'll store aggregated incident counts by tag_name for each simulation
-results_list = []
-tag_names = df['tag_name'].unique()
-
-for sim_id in range(num_simulations):
-    # Setting a different seed each iteration to get variability
-    # Or keep the same seed if you want consistent random draws
-    np.random.seed(sim_id + 42)  # offset by sim_id for variety
-    
-    # Calculate random draws for each row to see if incident occurs
-    random_values_no_sbom = np.random.rand(len(df))
-    random_values_sbom = np.random.rand(len(df))
-    
-    df['incident_occurred_no_sbom'] = (random_values_no_sbom < df['incident_prob_no_sbom'])
-    df['incident_occurred_sbom']    = (random_values_sbom    < df['incident_prob_sbom'])
-    
-    # Weighted incidence, e.g., sum base_score for each incident
-    df['incident_weight_no_sbom'] = df.apply(
-        lambda row: row['incident_weight'] if row['incident_occurred_no_sbom'] else 0.0, axis=1
-    )
-    df['incident_weight_sbom'] = df.apply(
-        lambda row: row['incident_weight'] if row['incident_occurred_sbom'] else 0.0, axis=1
-    )
-    
-    # Aggregate per release
-    incidents_by_release_no_sbom = df.groupby('tag_name')['incident_occurred_no_sbom'].sum()
-    incidents_by_release_sbom    = df.groupby('tag_name')['incident_occurred_sbom'].sum()
-    
-    # Weighted aggregates
-    weight_by_release_no_sbom = df.groupby('tag_name')['incident_weight_no_sbom'].sum()
-    weight_by_release_sbom    = df.groupby('tag_name')['incident_weight_sbom'].sum()
-    
-    # Store results in a DataFrame so we can average later
-    sim_results_df = pd.DataFrame({
-        'tag_name': tag_names,
-        'simulation_id': sim_id,
-        'incidents_no_sbom': incidents_by_release_no_sbom.reindex(tag_names).values,
-        'incidents_sbom':    incidents_by_release_sbom.reindex(tag_names).values,
-        'weighted_no_sbom':  weight_by_release_no_sbom.reindex(tag_names).values,
-        'weighted_sbom':     weight_by_release_sbom.reindex(tag_names).values
-    })
-    
-    results_list.append(sim_results_df)
-
-# Concatenate all simulation results
-all_sims_df = pd.concat(results_list, ignore_index=True)
-
-# -------------------------------------------------------------------------
-# 5. Compute Mean and Std Dev across simulations
-# -------------------------------------------------------------------------
+# 4. Calculate mean and std of incidents per release
 summary_df = all_sims_df.groupby('tag_name').agg({
-    'incidents_no_sbom': ['mean', 'std'],
-    'incidents_sbom':    ['mean', 'std'],
-    'weighted_no_sbom':  ['mean', 'std'],
-    'weighted_sbom':     ['mean', 'std']
+    'incident_occ_no':   ['mean','std'],
+    'incident_occ_sbom': ['mean','std'],
+    'inc_weight_no':     ['mean','std'],
+    'inc_weight_sbom':   ['mean','std']
 })
+summary_df.columns = ['_'.join(c) for c in summary_df.columns]
+summary_df = summary_df.reset_index()
+# (Optionally, sort by release date)
+date_map = df.groupby('tag_name')['published_at'].min().to_dict()
+summary_df['first_release_date'] = summary_df['tag_name'].map(date_map)
+summary_df.sort_values('first_release_date', inplace=True)
 
-# Flatten multi-level columns for readability
-summary_df.columns = ['_'.join(col) for col in summary_df.columns.values]
-summary_df.reset_index(inplace=True)
+# 5. Severity categorization for risk levels
+def risk_level(score):
+    return 'Low' if score <= 3.9 else ('Medium' if score <= 6.9 else 'High')
+df['risk_level'] = df['base_score'].apply(risk_level)
 
-# Merge with date info, if you want chronological ordering
-if 'published_at' in df.columns:
-    # Get earliest date for each release
-    date_map = df.groupby('tag_name')['published_at'].min().to_dict()
-    summary_df['published_at'] = summary_df['tag_name'].map(date_map)
-    summary_df = summary_df.sort_values('published_at').reset_index(drop=True)
+# 5a. Tally vulnerabilities by risk level (for heatmap)
+vuln_count = df.pivot_table(index='tag_name', columns='risk_level', values='cve_id', aggfunc='count', fill_value=0)
 
-# -------------------------------------------------------------------------
-# 6. Example: Visualization of Averages
-# -------------------------------------------------------------------------
-# Compare average incidents across releases in a bar chart
-plt.figure(figsize=(10, 6))
-plt.bar(summary_df.index - 0.2, summary_df['incidents_no_sbom_mean'], width=0.4, label='No SBOM')
-plt.bar(summary_df.index + 0.2, summary_df['incidents_sbom_mean'], width=0.4, label='With SBOM')
-plt.xlabel('Releases (Ordered by Date)')
-plt.ylabel('Mean Incident Count (Over {} Simulations)'.format(num_simulations))
-plt.title('Comparing Mean Incidents: No SBOM vs With SBOM')
+# 5b. Compute risk matrix counts (likelihood vs impact)
+def likelihood_cat(p):
+    return 'Low' if p < 0.05 else ('Medium' if p < 0.2 else 'High')
+df['likelihood_no']  = df['incident_prob_no_sbom'].apply(likelihood_cat)
+df['likelihood_sbom']= df['incident_prob_sbom'].apply(likelihood_cat)
+risk_matrix_no   = df.pivot_table(index='risk_level', columns='likelihood_no', values='cve_id', aggfunc='count', fill_value=0)
+risk_matrix_sbom = df.pivot_table(index='risk_level', columns='likelihood_sbom', values='cve_id', aggfunc='count', fill_value=0)
+
+# 6. Visualization
+
+# Bar chart: Mean incidents per release (No SBOM vs SBOM)
+plt.figure(figsize=(10,5))
+x = np.arange(len(summary_df))
+plt.bar(x - 0.2, summary_df['incident_occ_no_mean'],  width=0.4, label='No SBOM')
+plt.bar(x + 0.2, summary_df['incident_occ_sbom_mean'], width=0.4, label='With SBOM')
+plt.xticks(x, summary_df['tag_name'], rotation=90)
+plt.ylabel(f"Mean Incident Count (n={num_simulations} sims)")
+plt.title("Average Incidents per Release: SBOM vs No SBOM")
 plt.legend()
+plt.tight_layout()
 plt.show()
 
-# -------------------------------------------------------------------------
-# 7. Optional: Weighted Incidents Chart
-# -------------------------------------------------------------------------
-plt.figure(figsize=(10, 6))
-plt.bar(summary_df.index - 0.2, summary_df['weighted_no_sbom_mean'], width=0.4, label='No SBOM')
-plt.bar(summary_df.index + 0.2, summary_df['weighted_sbom_mean'], width=0.4, label='With SBOM')
-plt.xlabel('Releases (Ordered by Date)')
-plt.ylabel('Mean Weighted Incidents (Sum of CVSS Scores)'.format(num_simulations))
-plt.title('Comparing Weighted Incidents: No SBOM vs With SBOM')
-plt.legend()
+# Heatmap: CVE count by severity per release
+plt.figure(figsize=(8,6))
+sns.heatmap(vuln_count, cmap="YlOrRd", annot=True, fmt=".0f")
+plt.title("Heatmap of Vulnerability Count by Severity and Release")
+plt.xlabel("Severity Category"); plt.ylabel("Release")
 plt.show()
 
-# -------------------------------------------------------------------------
-# 8. Inspect final summary data
-# -------------------------------------------------------------------------
-print(summary_df.head(10))
-
+# Risk matrix heatmaps for No SBOM and SBOM scenarios
+fig, axes = plt.subplots(1,2, figsize=(8,6))
+sns.heatmap(risk_matrix_no, annot=True, cmap="Blues", fmt=".0f", cbar=False, ax=axes[0])
+axes[0].set_title("Risk Matrix (No SBOM)")
+axes[0].set_xlabel("Likelihood"); axes[0].set_ylabel("Impact (Severity)")
+sns.heatmap(risk_matrix_sbom, annot=True, cmap="Blues", fmt=".0f", cbar=False, ax=axes[1])
+axes[1].set_title("Risk Matrix (With SBOM)")
+axes[1].set_xlabel("Likelihood"); axes[1].set_ylabel("")  # y-label on first is enough
+plt.tight_layout()
+plt.show()
