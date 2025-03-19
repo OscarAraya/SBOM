@@ -1,118 +1,109 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-from packaging import version
 
-# 1. Load Data
-df = pd.read_csv('TensorFlowData.csv')
-df['published_at'] = pd.to_datetime(df['published_at'])
-df.sort_values('published_at', inplace=True)
+# 1. Load your CSV dataset
+df = pd.read_csv("Data.csv")
 
-# 2. Parse Tag Names & Classify Releases
-df['base_tag'] = (
-    df['tag_name']
-    .str.replace('^v', '', regex=True)
-    .str.replace(r'-rc\d*', '', regex=True)
-    .str.replace(r'-beta\d*', '', regex=True)
-    .str.strip()
-)
+# 2. Convert the published_at column into a proper datetime object
+df['release_date'] = pd.to_datetime(df['published_at'], errors='coerce')
 
-def parse_semver(tag_str):
-    try:
-        return version.parse(tag_str)
-    except:
-        return None
+# 3. Sort the DataFrame by release_date (chronological order)
+df.sort_values('release_date', inplace=True)
 
-df['semver'] = df['base_tag'].apply(parse_semver)
-df['release_type'] = df['prerelease'].apply(lambda x: 'Prerelease' if x == 1 else 'Production')
+# 4. Identify third-party artifacts (assume main_repo is "nodejs/node")
+main_repo = "tensorflow/tensorflow"
+df["is_third_party"] = ~df["artifact_name"].apply(lambda x: str(x) in main_repo)
 
-# 3. Define Simulation Function
-def simulate_vulnerabilities(dataframe, group_field='tag_name'):
-    df_sorted = dataframe.sort_values('published_at')
-    non_sbom_counts = []
-    sbom_counts = []
-    seen = set()
+# If the release information is stored under 'tag_name', rename it to 'version'
+if "tag_name" in df.columns:
+    df.rename(columns={"tag_name": "version"}, inplace=True)
+else:
+    raise ValueError("Release/version column not found. Please check your CSV.")
 
-    for release_val, group in df_sorted.groupby(group_field):
-        vulns = set(group['cve_id'])
-        non_sbom_counts.append(len(vulns))
-        new_vulns = vulns - seen
-        sbom_counts.append(len(new_vulns))
-        seen.update(new_vulns)
+# 5. Filter the DataFrame to include only third-party vulnerabilities
+third_party_df = df[df["is_third_party"]]
 
-    return non_sbom_counts, sbom_counts
+# 6. Group by version to count vulnerabilities (Metric B.31)
+vuln_count = third_party_df.groupby("version")["cve_id"].count().reset_index(name="vulnerabilities")
 
-def percentage_reduction(non_sbom_list, sbom_list):
-    if sum(non_sbom_list) == 0:
-        return 0
-    return (sum(non_sbom_list) - sum(sbom_list)) / sum(non_sbom_list) * 100
+# 7. Match each version to its earliest release_date
+release_dates = df.groupby("version")["release_date"].min().reset_index()
+vuln_count = pd.merge(vuln_count, release_dates, on="version", how="left")
 
-# 4. Production-Only Analysis
-prod_df = df[df['release_type'] == 'Production'].copy()
-non_sbom_prod, sbom_prod = simulate_vulnerabilities(prod_df, 'tag_name')
-prod_release_order = (prod_df.drop_duplicates('tag_name')
-                      .sort_values('published_at')['tag_name'].tolist())
+# 8. Sort again by release_date
+vuln_count.sort_values("release_date", inplace=True)
 
-# 5. Plot Production Releases
-x_prod = range(len(prod_release_order))
-plt.figure(figsize=(10, 6))
+# 9. Simulate three SBOM scenarios with different reduction levels
+np.random.seed(42)  # Ensuring reproducibility
+
+# Basic adoption: 10-30% reduction
+vuln_count["reduction_factor_basic"] = np.random.uniform(0.1, 0.3, size=len(vuln_count))
+vuln_count["vulnerabilities_sbom_basic"] = (vuln_count["vulnerabilities"] * (1 - vuln_count["reduction_factor_basic"])).astype(int)
+
+# Mature adoption: 30-50% reduction
+vuln_count["reduction_factor_mature"] = np.random.uniform(0.3, 0.5, size=len(vuln_count))
+vuln_count["vulnerabilities_sbom_mature"] = (vuln_count["vulnerabilities"] * (1 - vuln_count["reduction_factor_mature"])).astype(int)
+
+# Advanced adoption: 50-70% reduction
+vuln_count["reduction_factor_advanced"] = np.random.uniform(0.5, 0.7, size=len(vuln_count))
+vuln_count["vulnerabilities_sbom_advanced"] = (vuln_count["vulnerabilities"] * (1 - vuln_count["reduction_factor_advanced"])).astype(int)
+
+# 10. Plot the comparison over time
+plt.figure(figsize=(12, 6))
 plt.plot(
-    x_prod, non_sbom_prod,
-    label="Non-SBOM (Production)",
-    color='red', marker='o'
+    vuln_count["release_date"],
+    vuln_count["vulnerabilities"],
+    marker="o",
+    color="red",
+    linestyle="-",
+    label="NO SBOM"
 )
+
 plt.plot(
-    x_prod, sbom_prod,
-    label="SBOM (Production)",
-    color='blue', marker='o'
+    vuln_count["release_date"],
+    vuln_count["vulnerabilities_sbom_basic"],
+    marker="o",
+    color="blue",
+    linestyle=":",
+    label="SBOM (Básico)"
 )
-plt.title("Vulnerability Exposure (Production Releases)")
-plt.xlabel("Production Release Index")
-plt.ylabel("Vulnerability Count")
+
+plt.plot(
+    vuln_count["release_date"],
+    vuln_count["vulnerabilities_sbom_mature"],
+    marker="o",
+    color="green",
+    linestyle=":",
+    label="SBOM (Maduro)"
+)
+
+plt.plot(
+    vuln_count["release_date"],
+    vuln_count["vulnerabilities_sbom_advanced"],
+    marker="o",
+    color="purple",
+    linestyle=":",
+    label="SBOM (Avanzado)"
+)
+
+plt.xlabel("Fecha Liberación ")  # Release Date
+plt.ylabel("Número de vulnerabilidades de terceros")  # Number of Third-Party Vulnerabilities (Metric B.31)
+plt.title("Impacto del uso de SBOM en vulnerabilidades de terceros")  # Impact of SBOM on Third-Party Vulnerabilities
 plt.legend()
-
-# Show fewer x-axis labels
-step = max(1, len(prod_release_order)//10)
-ticks_to_show = list(range(0, len(prod_release_order), step))
-tick_labels = [prod_release_order[i] for i in ticks_to_show]
-plt.xticks(ticks_to_show, tick_labels, rotation=45)
+plt.grid(True, linestyle='--', alpha=0.6)
 plt.tight_layout()
 plt.show()
 
-# Print improvement
-prod_reduction = percentage_reduction(non_sbom_prod, sbom_prod)
-print(f"[Production] Vulnerability reduction with SBOM: {prod_reduction:.2f}%")
 
-# 6. Prerelease Analysis (Optional)
-pre_df = df[df['release_type'] == 'Prerelease'].copy()
-if not pre_df.empty:
-    non_sbom_pre, sbom_pre = simulate_vulnerabilities(pre_df, 'tag_name')
-    pre_release_order = (pre_df.drop_duplicates('tag_name')
-                         .sort_values('published_at')['tag_name'].tolist())
-    x_pre = range(len(pre_release_order))
+"""
+Se utilizan distintos valores debido al nivel de adopcion y esto depende mucho de las herramientas que se esten utilizando.
 
-    plt.figure(figsize=(10, 6))
-    plt.plot(
-        x_pre, non_sbom_pre,
-        label="Non-SBOM (Prerelease)",
-        color='orange', marker='o', linestyle='--'
-    )
-    plt.plot(
-        x_pre, sbom_pre,
-        label="SBOM (Prerelease)",
-        color='green', marker='o', linestyle='--'
-    )
-    plt.title("Vulnerability Exposure (Prereleases)")
-    plt.xlabel("Prerelease Index")
-    plt.ylabel("Vulnerability Count")
-    plt.legend()
+https://nios.montana.edu/cyber/products/Impacts%20of%20Software%20Bill%20of%20Materials%20-%20SBOM%20-%20Generation%20on%20Vulnerability%20Detection%20Final%20Version.pdf
+https://www.mckinsey.com/capabilities/risk-and-resilience/our-insights/cybersecurity/software-bill-of-materials-managing-software-cybersecurity-risks
+https://www.ox.security/sbom-tools-mitigating-supply-chain-risk-driving-compliance/
 
-    step = max(1, len(pre_release_order)//10)
-    ticks_to_show = list(range(0, len(pre_release_order), step))
-    tick_labels = [pre_release_order[i] for i in ticks_to_show]
-    plt.xticks(ticks_to_show, tick_labels, rotation=45)
-    plt.tight_layout()
-    plt.show()
-
-    pre_reduction = percentage_reduction(non_sbom_pre, sbom_pre)
-    print(f"[Prerelease] Vulnerability reduction with SBOM: {pre_reduction:.2f}%")
+Basic SBOM Adoption: 10-30% reduction (Blue)
+Mature SBOM Adoption: 30-50% reduction (Green)
+Advanced SBOM Adoption: 50-70% reduction (Purple)
+"""

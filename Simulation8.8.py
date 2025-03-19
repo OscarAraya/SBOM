@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 np.random.seed(42)
 
 # Load data
-df = pd.read_csv('nodejs.csv')
+df = pd.read_csv('Data.csv')
 # Count CVEs per version (how many CVEs each software release has)
 cve_counts = df.groupby('tag_name').size().reset_index(name='cve_count')
 df = df.merge(cve_counts, on='tag_name')
@@ -51,14 +51,14 @@ panorama_with_sbom = df['Vuln_Risk_With_SBOM'].sum()
 # Simulate detection time (days from CVE disclosure to when the organization detects/learns of it)
 def detection_time_no_sbom(cvss_score):
     if cvss_score >= 9.0:
-        return np.random.randint(1, 16)   # Critical: 1–15 days (likely heard quickly via alerts)
+        return np.random.randint(80, 161)   # Critical: 1.3 ~ 5 months
     elif cvss_score >= 7.0:
-        return np.random.randint(7, 31)   # High: up to ~30 days (found in routine scanning/news)
+        return np.random.randint(90, 171)   # High: 3 months ~ 5.7 months (found in routine scanning/news)
     else:
-        return np.random.randint(30, 91)  # Low: 1–3 months (might go unnoticed for a while)
+        return np.random.randint(120, 201)  # Low: 4–6.7 months (might go unnoticed for a while)
 
 def detection_time_with_sbom(cvss_score):
-    return np.random.randint(1, 6)        # With SBOM: 1–5 days (very quick automated detection)
+    return np.random.randint(10, 26)        # With SBOM: 10–25 days (very quick automated detection)
 
 df['Detection_Time_No_SBOM'] = df['base_score'].apply(detection_time_no_sbom)
 df['Detection_Time_With_SBOM'] = df['base_score'].apply(detection_time_with_sbom)
@@ -66,19 +66,19 @@ df['Detection_Time_With_SBOM'] = df['base_score'].apply(detection_time_with_sbom
 # Simulate remediation time (days from detection to deploying the fix)
 def remediation_time_no_sbom(cvss_score):
     if cvss_score >= 9.0:
-        return np.random.randint(30, 91)   # Critical: 1–3 months to remediate
+        return np.random.randint(25, 76)   # Critical: 1–2.5 months to remediate
     elif cvss_score >= 7.0:
-        return np.random.randint(60, 181)  # High: 2–6 months
+        return np.random.randint(40, 101)  # High: 1-3.5 months
     else:
-        return np.random.randint(180, 366) # Low/Med: 6–12 months (often delayed)
+        return np.random.randint(80, 161)  # Low/Med: 2.5–6 months (often delayed)
 
 def remediation_time_with_sbom(cvss_score):
     if cvss_score >= 9.0:
-        return np.random.randint(7, 31)    # Critical: ~1–4 weeks (faster turnaround)
+        return np.random.randint(5, 21)    # Critical: ~1–3 weeks (faster turnaround)
     elif cvss_score >= 7.0:
-        return np.random.randint(30, 91)   # High: 1–3 months
+        return np.random.randint(15, 61)   # High: 1–2 months
     else:
-        return np.random.randint(90, 181)  # Low/Med: 3–6 months (still faster than no SBOM)
+        return np.random.randint(50, 151)  # Low/Med: 1–5 months (still faster than no SBOM)
 
 df['Remediation_Time_No_SBOM'] = df['base_score'].apply(remediation_time_no_sbom)
 df['Remediation_Time_With_SBOM'] = df['base_score'].apply(remediation_time_with_sbom)
@@ -96,49 +96,59 @@ avg_total_no = df['Total_Time_No_SBOM'].mean()
 avg_total_with = df['Total_Time_With_SBOM'].mean()
 
 # Print out the simulation results
-print(f"Total Vulnerability Panorama WITHOUT SBOM: {panorama_no_sbom:.2f}")
-print(f"Total Vulnerability Panorama WITH SBOM:  {panorama_with_sbom:.2f}")
-print(f"Average Detection Time WITHOUT SBOM:    {avg_detect_no:.1f} days")
-print(f"Average Detection Time WITH SBOM:       {avg_detect_with:.1f} days")
-print(f"Average Remediation Time WITHOUT SBOM:  {avg_remed_no:.1f} days")
-print(f"Average Remediation Time WITH SBOM:     {avg_remed_with:.1f} days")
-print(f"Average Total Time to Remediate (No SBOM): {avg_total_no:.1f} days")
-print(f"Average Total Time to Remediate (With SBOM): {avg_total_with:.1f} days")
+print(f"Panorama de vulnerabilidad total No SBOM: {panorama_no_sbom:.2f}")
+print(f"Panorama de vulnerabilidad total SBOM:  {panorama_with_sbom:.2f}")
+print(f"Tiempo promedio de detección No SBOM:    {avg_detect_no:.1f} días")
+print(f"ATiempo promedio de detección SBOM:       {avg_detect_with:.1f} días")
+print(f"Tiempo promedio de remediación No SBOM:  {avg_remed_no:.1f} días")
+print(f"Tiempo promedio de remediación SBOM:     {avg_remed_with:.1f} días")
+print(f"Tiempo total promedio para remediar (No SBOM): {avg_total_no:.1f} días")
+print(f"Tiempo total promedio para remediar(SBOM): {avg_total_with:.1f} días")
+
+porcentaje_mejora_vuln = ((panorama_no_sbom - panorama_with_sbom) / panorama_no_sbom) * 100
+porcentaje_mejora_deteccion = ((avg_detect_no - avg_detect_with) / avg_detect_no) * 100
+porcentaje_mejora_remediacion = ((avg_remed_no - avg_remed_with) / avg_remed_no) * 100
+porcentaje_mejora_total_remediar = ((avg_total_no - avg_total_with) / avg_total_no) * 100
+
+print(f"Panorama de vulnerabilidad total: {porcentaje_mejora_vuln:.2f} %")
+print(f"ATiempo promedio de detección:       {porcentaje_mejora_deteccion:.1f} %")
+print(f"Tiempo promedio de remediación:     {porcentaje_mejora_remediacion:.1f} %")
+print(f"Tiempo total promedio para remediar: {porcentaje_mejora_total_remediar:.1f} %")
 
 # Create bar charts comparing SBOM vs. No-SBOM scenarios
 
 # Vulnerability Panorama Comparison
 plt.figure(figsize=(8, 5))
-plt.bar(["Without SBOM", "With SBOM"], [panorama_no_sbom, panorama_with_sbom], alpha=0.7)
-plt.xlabel("Scenario")
-plt.ylabel("Vulnerability Panorama Score")
-plt.title("Vulnerability Exposure: SBOM vs No SBOM")
+plt.bar(["No SBOM", "SBOM"], [panorama_no_sbom, panorama_with_sbom], color=["red", "green"], alpha=0.7)
+plt.xlabel("Escenario")
+plt.ylabel("Puntuación del panorama de vulnerabilidad")
+plt.title("Exposición a la vulnerabilidad: SBOM vs No SBOM")
 plt.grid(axis="y", linestyle="--", alpha=0.5)
 plt.show()
 
 # Detection Time Comparison
 plt.figure(figsize=(8, 5))
-plt.bar(["Without SBOM", "With SBOM"], [avg_detect_no, avg_detect_with], color=["red", "green"], alpha=0.7)
-plt.xlabel("Scenario")
-plt.ylabel("Average Detection Time (Days)")
-plt.title("Average Vulnerability Detection Time: SBOM vs No SBOM")
+plt.bar(["No SBOM", "SBOM"], [avg_detect_no, avg_detect_with], color=["red", "green"], alpha=0.7)
+plt.xlabel("Escenario")
+plt.ylabel("Tiempo promedio de detección (Días)")
+plt.title("Tiempo promedio de detección de vulnerabilidades: SBOM vs No SBOM")
 plt.grid(axis="y", linestyle="--", alpha=0.5)
 plt.show()
 
 # Remediation Time Comparison
 plt.figure(figsize=(8, 5))
-plt.bar(["Without SBOM", "With SBOM"], [avg_remed_no, avg_remed_with], color=["red", "green"], alpha=0.7)
-plt.xlabel("Scenario")
-plt.ylabel("Average Remediation Time (Days)")
-plt.title("Average Vulnerability Remediation Time: SBOM vs No SBOM")
+plt.bar(["No SBOM", "SBOM"], [avg_remed_no, avg_remed_with], color=["red", "green"], alpha=0.7)
+plt.xlabel("Escenario")
+plt.ylabel("Tiempo promedio de remediación (Días)")
+plt.title("Tiempo promedio de remediación de vulnerabilidades: SBOM vs No SBOM")
 plt.grid(axis="y", linestyle="--", alpha=0.5)
 plt.show()
 
 # Total Time from Disclosure to Remediation
 plt.figure(figsize=(8, 5))
-plt.bar(["Without SBOM", "With SBOM"], [avg_total_no, avg_total_with], color=["red", "green"], alpha=0.7)
-plt.xlabel("Scenario")
-plt.ylabel("Total Time to Remediate (Days)")
-plt.title("Total Vulnerability Lifetime: SBOM vs No SBOM")
+plt.bar(["No SBOM", "SBOM"], [avg_total_no, avg_total_with], color=["red", "green"], alpha=0.7)
+plt.xlabel("Escenario")
+plt.ylabel("Tiempo total para remediar (Días)")
+plt.title("Duración total de la vulnerabilidad: SBOM vs No SBOM")
 plt.grid(axis="y", linestyle="--", alpha=0.5)
 plt.show()
