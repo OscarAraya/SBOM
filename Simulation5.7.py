@@ -1,25 +1,23 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-import seaborn as sns
+from scipy.stats import ttest_ind
 
-# Load data from CSV file with headers
-df = pd.read_csv('Data.csv')
+# Load dataset
+df = pd.read_csv("tensorflow.csv")
 
 # Ensure published_at is in datetime format
-df['release_date'] = pd.to_datetime(df['published_at'])
+df['published_at'] = pd.to_datetime(df['published_at'])
 
-# Data Simulation (CVSS-based Incident Probability)
+# Filter vulnerabilities with CVSS scores
 df = df[df['base_score'] > 0]
 
+# Define incident probabilities based on CVSS scores
 df['incident_prob_no_sbom'] = pd.cut(
     df['base_score'],
     bins=[0, 3.9, 6.9, 8.9, 10.0],
     labels=[0.10, 0.30, 0.60, 0.80]
 ).astype(float)
-
-np.random.seed(42)
-df['incident_occured_no_sbom'] = (np.random.rand(len(df)) < df['incident_prob_no_sbom']).astype(int)
 
 df['incident_prob_sbom'] = pd.cut(
     df['base_score'],
@@ -27,20 +25,63 @@ df['incident_prob_sbom'] = pd.cut(
     labels=[0.05, 0.15, 0.30, 0.40]
 ).astype(float)
 
-df['incident_occured_sbom'] = (np.random.rand(len(df)) < df['incident_prob_sbom']).astype(int)
+# Adjust probabilities based on exploitability score
+df['adjusted_prob_no_sbom'] = df['incident_prob_no_sbom'] + (df['exploitability_score'] / 10) * 0.2
+df['adjusted_prob_sbom'] = df['incident_prob_sbom'] - (df['exploitability_score'] / 10) * 0.2
 
-# Aggregate incidents per release and sort by release date
-incidents_by_release = df.groupby(['release_date', 'tag_name'])[['incident_occured_no_sbom','incident_occured_sbom']].sum().astype(int)
-incidents_by_release = incidents_by_release.reset_index().sort_values(by='release_date')
+df[['adjusted_prob_no_sbom', 'adjusted_prob_sbom']] = df[['adjusted_prob_no_sbom', 'adjusted_prob_sbom']].clip(0, 1)
 
-# Set 'tag_name' as the index again
-df_pivot = incidents_by_release.set_index('tag_name')[['incident_occured_no_sbom', 'incident_occured_sbom']]
+# Simulate incident occurrences
+df['incident_occured_no_sbom'] = (np.random.rand(len(df)) < df['adjusted_prob_no_sbom']).astype(int)
+df['incident_occured_sbom'] = (np.random.rand(len(df)) < df['adjusted_prob_sbom']).astype(int)
 
-plt.figure(figsize=(10, 8))
-sns.heatmap(df_pivot, annot=True, cmap="Reds", fmt=".0f")
-plt.xlabel('Scenario')
-plt.ylabel('Tag Name (Ordered by Release Date)')
-plt.title('Security Incidents Over Time: With vs. Without SBOM')
-plt.xticks(ticks=[0.5, 1.5], labels=['No SBOM', 'With SBOM'])
-plt.yticks(rotation=0)
+# Define Mean Time to Respond (MTTR)
+df['mttr_no_sbom'] = np.random.normal(loc=15, scale=3, size=len(df))
+df['mttr_sbom'] = np.random.normal(loc=5, scale=2, size=len(df))
+
+# Define Mean Time Between Failures (MTBF)
+df['mtbf_no_sbom'] = np.random.normal(loc=30, scale=5, size=len(df))
+df['mtbf_sbom'] = np.random.normal(loc=50, scale=7, size=len(df))
+
+# Simulate Incident Recurrence Probability
+df['incident_recurrence_prob_no_sbom'] = np.random.choice([0.1, 0.3, 0.5], size=len(df), p=[0.4, 0.4, 0.2])
+df['incident_recurrence_prob_sbom'] = df['incident_recurrence_prob_no_sbom'] * 0.3
+
+# Visualization: Incident Probability Distribution
+plt.figure(figsize=(10, 6))
+plt.hist(df['adjusted_prob_no_sbom'], bins=20, alpha=0.5, label="No SBOM", color="red")
+plt.hist(df['adjusted_prob_sbom'], bins=20, alpha=0.5, label="With SBOM", color="green")
+plt.xlabel("Incident Probability")
+plt.ylabel("Frequency")
+plt.title("Incident Probability Distribution: No SBOM vs With SBOM")
+plt.legend()
 plt.show()
+
+# Visualization: MTTR Comparison
+plt.figure(figsize=(10, 6))
+plt.hist(df['mttr_no_sbom'], bins=20, alpha=0.5, label="No SBOM (MTTR)", color="red")
+plt.hist(df['mttr_sbom'], bins=20, alpha=0.5, label="With SBOM (MTTR)", color="green")
+plt.xlabel("Mean Time to Respond (Days)")
+plt.ylabel("Frequency")
+plt.title("MTTR Comparison: No SBOM vs With SBOM")
+plt.legend()
+plt.show()
+
+# Visualization: MTBF Comparison
+plt.figure(figsize=(10, 6))
+plt.hist(df['mtbf_no_sbom'], bins=20, alpha=0.5, label="No SBOM (MTBF)", color="red")
+plt.hist(df['mtbf_sbom'], bins=20, alpha=0.5, label="With SBOM (MTBF)", color="green")
+plt.xlabel("Mean Time Between Failures (Days)")
+plt.ylabel("Frequency")
+plt.title("MTBF Comparison: No SBOM vs With SBOM")
+plt.legend()
+plt.show()
+
+# Statistical comparison
+stat_results = {
+    "MTTR": ttest_ind(df['mttr_no_sbom'], df['mttr_sbom'], equal_var=False),
+    "MTBF": ttest_ind(df['mtbf_no_sbom'], df['mtbf_sbom'], equal_var=False),
+}
+
+for key, value in stat_results.items():
+    print(f"{key} - T-Statistic: {value.statistic:.4f}, P-Value: {value.pvalue:.4e}")

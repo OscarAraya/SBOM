@@ -3,17 +3,17 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # Load the dataset
-df = pd.read_csv("Angular.csv")
+df = pd.read_csv("tensorflow.csv")
 df["base_score"] = pd.to_numeric(df["base_score"], errors="coerce")
 
 # Categorize severity based on CVSS score
-bins = [0, 4, 7, 10]
-labels = ["Low", "Medium", "High"]
+bins = [0, 4, 7, 9, 10]
+labels = ["Critical", "High", "Medium" , "Low"]
 df["Severity"] = pd.cut(df["base_score"], bins=bins, labels=labels, include_lowest=True)
 
 # Incident probabilities
-prob_no_sbom = {"Low": 0.10, "Medium": 0.40, "High": 0.80}
-prob_with_sbom = {"Low": 0.05, "Medium": 0.25, "High": 0.60}
+prob_no_sbom = {"Critical": 0.95, "High": 0.80, "Medium": 0.40, "Low": 0.10 }
+prob_with_sbom = {"Critical": 0.85, "High": 0.60, "Medium": 0.25, "Low": 0.05}
 
 # Function to simulate incidents
 def simulate_incidents(dataframe, prob_mapping, seed=42):
@@ -27,8 +27,8 @@ df_no_sbom = simulate_incidents(df, prob_no_sbom)
 df_with_sbom = simulate_incidents(df, prob_with_sbom)
 
 # Define mean remediation times
-mean_time_no_sbom = {"Low": 15, "Medium": 10, "High": 5}
-mean_time_with_sbom = {"Low": 10, "Medium": 7, "High": 3}
+mean_time_no_sbom = {"Critical": 90, "High": 60, "Medium": 30, "Low": 15}
+mean_time_with_sbom = {"Critical": 70, "High": 45, "Medium": 20, "Low": 10 }
 
 # Assign remediation times
 np.random.seed(42)
@@ -46,9 +46,13 @@ total_incidents_no_sbom = df_no_sbom["Incident"].sum()
 total_incidents_with_sbom = df_with_sbom["Incident"].sum()
 incident_reduction = ((total_incidents_no_sbom - total_incidents_with_sbom) / total_incidents_no_sbom) * 100
 
+print("Incident Reduction:", incident_reduction)
+
 MTTR_no_sbom = df_no_sbom[df_no_sbom["Incident"] == 1]["RemediationTime"].mean()
 MTTR_with_sbom = df_with_sbom[df_with_sbom["Incident"] == 1]["RemediationTime"].mean()
 mttr_improvement = ((MTTR_no_sbom - MTTR_with_sbom) / MTTR_no_sbom) * 100
+
+print("MTTR Improvement:", mttr_improvement)
 
 # Learning metric calculation
 learning_threshold = 0.80

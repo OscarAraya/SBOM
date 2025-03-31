@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # 1. Load your CSV dataset
-df = pd.read_csv("Data.csv")
+df = pd.read_csv("tensorflow.csv")
 
 # 2. Convert the published_at column into a proper datetime object
 df['release_date'] = pd.to_datetime(df['published_at'], errors='coerce')
@@ -106,4 +106,13 @@ https://www.ox.security/sbom-tools-mitigating-supply-chain-risk-driving-complian
 Basic SBOM Adoption: 10-30% reduction (Blue)
 Mature SBOM Adoption: 30-50% reduction (Green)
 Advanced SBOM Adoption: 50-70% reduction (Purple)
+
+El objetivo de este apartado es de evaluar el grado de como se aborda la seguridad en los acuerdos con terceros, sugerido por la métrica B.31 de seguridad de acuerdos con terceros del ISO 27004:2016. Esta métrica sugiere una formula en la cual se considere la cantidad de acuerdos y requerimientos acordados entre las partes de ambas organizaciones, sin embargo en este caso es difícil conseguir este tipo de información.
+Para este caso de uso se ha conseguido el nombre (artifact_name) y version (artifact_version) del componente vulnerado que se encuentra relacionado al CVE. Con esta información se ha decidido comparar el nombre del componente vulnerado con el nombre del repositorio, en caso que este no encuentre similitudes entre ambos este sera considerado como una biblioteca de terceros, por ende un acuerdo entre ambas partes.
+
+Debido a que el uso del SBOM no es una solución que presente un porcentaje de mejora fijo para todas las organizaciones, se ha considerado tomar en cuenta el nivel de adopción o madurez del proceso de implementación de un SBOM dentro de la organización.
+
+Para esto se han considerado tres categorías, adopción básica, intermedia o avanzada. Para cada uno de estos se ha fijo un rango de porcentajes de reducción. De un 10 a un 30 para el nivel básico, entre un 30 y 50 para el intermedio y finalmente entre un 50 a 70 para el avanzado.
+
+De esta manera se logra observar una posible mejora dependiendo del nivel de adopción e así mismo incentivar una correcta implementación del SBOM dentro la organización.
 """
