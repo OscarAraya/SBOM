@@ -13,7 +13,7 @@ df['release_date'] = pd.to_datetime(df['published_at'], errors='coerce')
 df.sort_values('release_date', inplace=True)
 
 # 4. Identify third-party artifacts (assume main_repo is "nodejs/node")
-main_repo = "tensorflow/tensorflow"
+main_repo = "tensorflow/tensorflow" 
 df["is_third_party"] = ~df["artifact_name"].apply(lambda x: str(x) in main_repo)
 
 # If the release information is stored under 'tag_name', rename it to 'version'
@@ -88,7 +88,7 @@ plt.plot(
     label="SBOM (Avanzado)"
 )
 
-plt.xlabel("Fecha Liberación ")  # Release Date
+plt.xlabel("Fecha Liberación")  # Release Date
 plt.ylabel("Número de vulnerabilidades de terceros")  # Number of Third-Party Vulnerabilities (Metric B.31)
 plt.title("Impacto del uso de SBOM en vulnerabilidades de terceros")  # Impact of SBOM on Third-Party Vulnerabilities
 plt.legend()

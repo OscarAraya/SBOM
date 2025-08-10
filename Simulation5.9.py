@@ -14,13 +14,13 @@ df.sort_values('release_date', inplace=True)
 # Categorize risk levels based on CVSS scores
 def categorize_risk(cvss_score):
     if cvss_score >= 9.0:
-        return 'Critical'
+        return 'Crítico'
     elif cvss_score >= 7.0:
-        return 'High'
+        return 'Alto'
     elif cvss_score >= 4.0:
-        return 'Medium'
+        return 'Medio'
     else:
-        return 'Low'
+        return 'Bajo'
 
 df['Risk_Level'] = df['base_score'].apply(categorize_risk)
 
@@ -58,14 +58,14 @@ def simulate_sbom_effect(risk, release_date, model='advanced'):
     sbom_factor = get_sbom_effect_factor(release_date, patch_availability=patch_available) * get_sbom_model_factor(model)
     
     transition_probs = {
-        'Critical': [sbom_factor * 0.85, 1 - sbom_factor * 0.85],
-        'High': [sbom_factor * 0.75, 1 - sbom_factor * 0.75],
-        'Medium': [sbom_factor * 0.65, 1 - sbom_factor * 0.65],
-        'Low': [1.0, 0.0],
+        'Crítico': [sbom_factor * 0.85, 1 - sbom_factor * 0.85],
+        'Alto': [sbom_factor * 0.75, 1 - sbom_factor * 0.75],
+        'Medio': [sbom_factor * 0.65, 1 - sbom_factor * 0.65],
+        'Bajo': [1.0, 0.0],
     }
     
     if risk in transition_probs:
-        return np.random.choice(['Low', 'Medium', 'High', 'Critical'][:len(transition_probs[risk])], 
+        return np.random.choice(['Bajo', 'Medio', 'Alto', 'Crítico'][:len(transition_probs[risk])], 
                                 p=transition_probs[risk])
     return risk
 
@@ -77,7 +77,7 @@ df_sorted = df[['tag_name', 'release_date']].drop_duplicates().sort_values('rele
 df['tag_name'] = pd.Categorical(df['tag_name'], categories=df_sorted['tag_name'], ordered=True)
 
 # Define risk level order
-risk_levels = ['Critical', 'High', 'Medium', 'Low']
+risk_levels = ['Crítico', 'Alto', 'Medio', 'Bajo']
 
 # Aggregate data and ensure correct order
 heatmap_data_no_sbom = pd.crosstab(df['tag_name'], df['Risk_Level_No_SBOM'])
