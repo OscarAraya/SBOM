@@ -3,92 +3,92 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
-# Set seed for reproducibility
+# Semilla para la reproducibilidad
 np.random.seed(42)
 
-# Load data
+
 df = pd.read_csv('tensorflow.csv')
-# Count CVEs per version (how many CVEs each software release has)
+# Contar CVE por Release
 cve_counts = df.groupby('tag_name').size().reset_index(name='cve_count')
 df = df.merge(cve_counts, on='tag_name')
 
-# Define affected systems (impact scope) for each vulnerability
+# Definir los sistemas afectados para cada vulnerabilidad
 def affected_systems_no_sbom(cvss_score, cve_count):
-    # Base number of affected systems grows with severity (critical > high > low)
+    # El número base de sistemas afectados aumenta con la gravedad
     if cvss_score >= 9.0:
-        base = np.random.randint(4, 6)    # Critical: 4–5 systems affected
+        base = np.random.randint(4, 6)    # Crítico: 4-5 sistemas afectados
     elif cvss_score >= 7.0:
-        base = np.random.randint(3, 5)    # High: 3–4 systems
+        base = np.random.randint(3, 5)    # Alto: 3–4 sistemas
     else:
-        base = np.random.randint(1, 4)    # Low/Med: 1–3 systems
-    # If the software version has many CVEs, it might be widely used/outdated – add impact
-    extra = cve_count // 5               # e.g. +1 system for each 5 CVEs in that version
+        base = np.random.randint(1, 4)    # Bajo/Medio: 1–3 sistemas
+    # Se agrega mayor impacto si la versión del software tiene muchos CVE, asumiento que sea altamente utilizada o esté desactualizada
+    extra = cve_count // 5               # +1 sistema por cada 5 CVE en esa versión
     return base + extra
 
 def affected_systems_with_sbom(cvss_score, cve_count):
-    # SBOM in use – expected fewer systems impacted due to proactive management
+    # SBOM en uso: se espera que hayan menos sistemas afectados
     if cvss_score >= 9.0:
-        base = np.random.randint(2, 4)   # Critical: 2–3 systems (faster detection limits spread)
+        base = np.random.randint(2, 4)   # Crítico: 2–3 sistemas
     elif cvss_score >= 7.0:
-        base = np.random.randint(1, 3)   # High: 1–2 systems
+        base = np.random.randint(1, 3)   # Alto: 1–2 sistemas
     else:
-        base = 1                         # Low/Med: likely 1 system (minimal impact)
-    # Assume SBOM-driven practices avoid large deployments of highly vulnerable versions
-    extra = 0  # We minimize extra spread in SBOM scenario
+        base = 1                         # Bajo/Medio: 1 sistema posiblemente (impacto mínimo)
+    # Se asume que el uso del SBOM evita grandes implementaciones de versiones altamente vulnerables
+    extra = 0  # No hay impacto extra en este escenario
     return base + extra
 
-# Apply the functions to get number of affected systems per CVE in each scenario
+# Se aplican las funciones para obtener el número de sistemas afectados por CVE por escenario
 df['Affected_Systems_No_SBOM'] = df.apply(lambda x: affected_systems_no_sbom(x['base_score'], x['cve_count']), axis=1)
 df['Affected_Systems_With_SBOM'] = df.apply(lambda x: affected_systems_with_sbom(x['base_score'], x['cve_count']), axis=1)
 
-# Calculate vulnerability panorama (severity * affected systems) for each CVE and scenario
+# Se calcula el panorama de vulnerabilidad (gravedad * sistemas afectados) para cada CVE y escenario
 df['Vuln_Risk_No_SBOM'] = df['base_score'] * df['Affected_Systems_No_SBOM']
 df['Vuln_Risk_With_SBOM'] = df['base_score'] * df['Affected_Systems_With_SBOM']
 
-# Sum up the vulnerability panorama metric for each scenario
+# Suma de la métrica del panorama de vulnerabilidad para cada escenario
 panorama_no_sbom = df['Vuln_Risk_No_SBOM'].sum()
 panorama_with_sbom = df['Vuln_Risk_With_SBOM'].sum()
 
-# Simulate detection time (days from CVE disclosure to when the organization detects/learns of it)
+# Simulación del tiempo de detección
 def detection_time_no_sbom(cvss_score):
     if cvss_score >= 9.0:
-        return np.random.randint(80, 161)   # Critical: 1.3 ~ 5 months
+        return np.random.randint(80, 161)   # Crítico: 1.3 ~ 5 meses
     elif cvss_score >= 7.0:
-        return np.random.randint(90, 171)   # High: 3 months ~ 5.7 months (found in routine scanning/news)
+        return np.random.randint(90, 171)   # Alto: 3 meses ~ 5.7 meses
     else:
-        return np.random.randint(120, 201)  # Low: 4–6.7 months (might go unnoticed for a while)
+        return np.random.randint(120, 201)  # Bajo: 4–6.7 meses
 
 def detection_time_with_sbom(cvss_score):
-    return np.random.randint(10, 26)        # With SBOM: 10–25 days (very quick automated detection)
+    return np.random.randint(10, 26)        # Con SBOM: 10–25 días (detección automatizada muy rápida)
 
 df['Detection_Time_No_SBOM'] = df['base_score'].apply(detection_time_no_sbom)
 df['Detection_Time_With_SBOM'] = df['base_score'].apply(detection_time_with_sbom)
 
-# Simulate remediation time (days from detection to deploying the fix)
+# Simulación del tiempo de remediación
 def remediation_time_no_sbom(cvss_score):
     if cvss_score >= 9.0:
-        return np.random.randint(25, 76)   # Critical: 1–2.5 months to remediate
+        return np.random.randint(25, 76)   # Crítico: 1 ~ 2.5 meses para remediar
     elif cvss_score >= 7.0:
-        return np.random.randint(40, 101)  # High: 1-3.5 months
+        return np.random.randint(40, 101)  # Alto: 1 mes ~ 3. meses
     else:
-        return np.random.randint(80, 161)  # Low/Med: 2.5–6 months (often delayed)
+        return np.random.randint(80, 161)  # Bajo/Medio: 2.5 ~ 6 meses
 
 def remediation_time_with_sbom(cvss_score):
     if cvss_score >= 9.0:
-        return np.random.randint(5, 21)    # Critical: ~1–3 weeks (faster turnaround)
+        return np.random.randint(5, 21)    # Crítico: 1 ~ 3 semanas
     elif cvss_score >= 7.0:
-        return np.random.randint(15, 61)   # High: 1–2 months
+        return np.random.randint(15, 61)   # Alto: 1 ~ 2 meses
     else:
-        return np.random.randint(50, 151)  # Low/Med: 1–5 months (still faster than no SBOM)
+        return np.random.randint(50, 151)  # Bajo/Medio: 1 ~ 5 meses
 
 df['Remediation_Time_No_SBOM'] = df['base_score'].apply(remediation_time_no_sbom)
 df['Remediation_Time_With_SBOM'] = df['base_score'].apply(remediation_time_with_sbom)
 
-# Total time from CVE disclosure to remediation (detection + fix time)
+# Tiempo total desde la divulgación de CVE hasta la remediación (tiempo de detección + reparación)
 df['Total_Time_No_SBOM'] = df['Detection_Time_No_SBOM'] + df['Remediation_Time_No_SBOM']
 df['Total_Time_With_SBOM'] = df['Detection_Time_With_SBOM'] + df['Remediation_Time_With_SBOM']
 
-# Calculate average times for summary
+# Calculo de tiempos promedio para el resumen
 avg_detect_no = df['Detection_Time_No_SBOM'].mean()
 avg_detect_with = df['Detection_Time_With_SBOM'].mean()
 avg_remed_no = df['Remediation_Time_No_SBOM'].mean()
@@ -96,7 +96,6 @@ avg_remed_with = df['Remediation_Time_With_SBOM'].mean()
 avg_total_no = df['Total_Time_No_SBOM'].mean()
 avg_total_with = df['Total_Time_With_SBOM'].mean()
 
-# Print out the simulation results
 print(f"Panorama de vulnerabilidad total No SBOM: {panorama_no_sbom:.2f}")
 print(f"Panorama de vulnerabilidad total SBOM:  {panorama_with_sbom:.2f}")
 print(f"Tiempo promedio de detección No SBOM:    {avg_detect_no:.1f} días")
@@ -116,9 +115,7 @@ print(f"ATiempo promedio de detección:       {porcentaje_mejora_deteccion:.1f} 
 print(f"Tiempo promedio de remediación:     {porcentaje_mejora_remediacion:.1f} %")
 print(f"Tiempo total promedio para remediar: {porcentaje_mejora_total_remediar:.1f} %")
 
-# Create bar charts comparing SBOM vs. No-SBOM scenarios
-
-# Vulnerability Panorama Comparison
+# Comparación del panorama de vulnerabilidades
 plt.figure(figsize=(8, 5))
 plt.bar(["No SBOM", "SBOM"], [panorama_no_sbom, panorama_with_sbom], color=["red", "green"], alpha=0.7)
 plt.xlabel("Escenario")
@@ -127,7 +124,7 @@ plt.title("Exposición a la vulnerabilidad: SBOM vs No SBOM")
 plt.grid(axis="y", linestyle="--", alpha=0.5)
 plt.show()
 
-# Detection Time Comparison
+# Comparación del tiempo de detección
 plt.figure(figsize=(8, 5))
 plt.bar(["No SBOM", "SBOM"], [avg_detect_no, avg_detect_with], color=["red", "green"], alpha=0.7)
 plt.xlabel("Escenario")
@@ -136,7 +133,7 @@ plt.title("Tiempo promedio de detección de vulnerabilidades: SBOM vs No SBOM")
 plt.grid(axis="y", linestyle="--", alpha=0.5)
 plt.show()
 
-# Remediation Time Comparison
+# Comparación del tiempo de remediación
 plt.figure(figsize=(8, 5))
 plt.bar(["No SBOM", "SBOM"], [avg_remed_no, avg_remed_with], color=["red", "green"], alpha=0.7)
 plt.xlabel("Escenario")
@@ -145,7 +142,7 @@ plt.title("Tiempo promedio de remediación de vulnerabilidades: SBOM vs No SBOM"
 plt.grid(axis="y", linestyle="--", alpha=0.5)
 plt.show()
 
-# Total Time from Disclosure to Remediation
+# Tiempo total desde la divulgación hasta la remediación
 plt.figure(figsize=(8, 5))
 plt.bar(["No SBOM", "SBOM"], [avg_total_no, avg_total_with], color=["red", "green"], alpha=0.7)
 plt.xlabel("Escenario")
