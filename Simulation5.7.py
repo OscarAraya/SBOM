@@ -54,13 +54,6 @@ mttr_improvement = ((MTTR_no_sbom - MTTR_with_sbom) / MTTR_no_sbom) * 100
 
 print("Mejora del MTTR:", mttr_improvement)
 
-# Aprendizaje del cálculo de métricas
-learning_threshold = 0.80
-learn_fraction_no_sbom = 0.70
-learn_fraction_with_sbom = 0.90
-meets_threshold_no = learn_fraction_no_sbom >= learning_threshold
-meets_threshold_with = learn_fraction_with_sbom >= learning_threshold
-
 fig, axes = plt.subplots(1, 2, figsize=(12, 6))
 
 # Reducción de incidentes
