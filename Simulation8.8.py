@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 np.random.seed(42)
 
 df = pd.read_csv('tensorflow.csv')
-# Contar CVE por Release
+# Contar los CVE por Release
 cve_counts = df.groupby('tag_name').size().reset_index(name='cve_count')
 df = df.merge(cve_counts, on='tag_name')
 
@@ -21,8 +21,8 @@ def affected_systems_no_sbom(cvss_score, cve_count):
     else:
         base = np.random.randint(1, 4) # Bajo/Medio: 1–3 sistemas
     # Se agrega mayor impacto si la versión del software tiene muchos CVE, asumiento que sea altamente utilizada o esté desactualizada
-    extra = cve_count // 5 # +1 sistema por cada 5 CVE en esa versión
-    return base + extra
+    # extra = cve_count // 5 # +1 sistema por cada 5 CVE en esa versión
+    return base #+ extra
 
 def affected_systems_with_sbom(cvss_score, cve_count):
     # SBOM en uso: se espera que hayan menos sistemas afectados
@@ -31,7 +31,7 @@ def affected_systems_with_sbom(cvss_score, cve_count):
     elif cvss_score >= 7.0:
         base = np.random.randint(1, 3) # Alto: 1–2 sistemas
     else:
-        base = 1 # Bajo/Medio: 1 sistema posiblemente (impacto mínimo)
+        base = 1 # Bajo/Medio: 1 sistema
     # Se asume que el uso del SBOM evita grandes implementaciones de versiones altamente vulnerables
     extra = 0 # No hay impacto extra en este escenario
     return base + extra
@@ -66,7 +66,7 @@ df['Detection_Time_With_SBOM'] = df['base_score'].apply(detection_time_with_sbom
 # Simulación del tiempo de remediación
 def remediation_time_no_sbom(cvss_score):
     if cvss_score >= 9.0:
-        return np.random.randint(25, 76) # Crítico: 1 ~ 2.5 meses para remediar
+        return np.random.randint(25, 76) # Crítico: 1 ~ 2.5 meses
     elif cvss_score >= 7.0:
         return np.random.randint(40, 101) # Alto: 1 mes ~ 3.5 meses
     else:
@@ -104,44 +104,65 @@ print(f"Tiempo promedio de remediación SBOM:     {avg_remed_with:.1f} días")
 print(f"Tiempo total promedio para remediar (No SBOM): {avg_total_no:.1f} días")
 print(f"Tiempo total promedio para remediar(SBOM): {avg_total_with:.1f} días")
 
-porcentaje_mejora_vuln = ((panorama_no_sbom - panorama_with_sbom) / panorama_no_sbom) * 100
-porcentaje_mejora_deteccion = ((avg_detect_no - avg_detect_with) / avg_detect_no) * 100
-porcentaje_mejora_remediacion = ((avg_remed_no - avg_remed_with) / avg_remed_no) * 100
-porcentaje_mejora_total_remediar = ((avg_total_no - avg_total_with) / avg_total_no) * 100
+# Porcentajes de mejora
+vuln_improv_perc = ((panorama_no_sbom - panorama_with_sbom) / panorama_no_sbom) * 100
+detec_imporv_perc = ((avg_detect_no - avg_detect_with) / avg_detect_no) * 100
+remed_improv_perc = ((avg_remed_no - avg_remed_with) / avg_remed_no) * 100
+total_improv_remed_perc = ((avg_total_no - avg_total_with) / avg_total_no) * 100
 
-print(f"Panorama de vulnerabilidad total: {porcentaje_mejora_vuln:.2f} %")
-print(f"Tiempo promedio de detección:       {porcentaje_mejora_deteccion:.1f} %")
-print(f"Tiempo promedio de remediación:     {porcentaje_mejora_remediacion:.1f} %")
-print(f"Tiempo total promedio para remediar: {porcentaje_mejora_total_remediar:.1f} %")
+print(f"Panorama de vulnerabilidad total: {vuln_improv_perc:.2f} %")
+print(f"Tiempo promedio de detección:       {detec_imporv_perc:.1f} %")
+print(f"Tiempo promedio de remediación:     {remed_improv_perc:.1f} %")
+print(f"Tiempo total promedio para remediar: {total_improv_remed_perc:.1f} %")
 
 # Comparación del panorama de vulnerabilidades
 plt.figure(figsize=(8, 5))
-plt.bar(["No SBOM", "SBOM"], [panorama_no_sbom, panorama_with_sbom], color=["red", "green"])
+bars = plt.bar(["No SBOM", "SBOM"], [panorama_no_sbom, panorama_with_sbom], color=["red", "green"])
 plt.xlabel("Escenario")
 plt.ylabel("Puntuación del panorama de vulnerabilidad")
 plt.title("Exposición a la vulnerabilidad: SBOM vs No SBOM")
+for bar in bars:
+    height = bar.get_height()
+    plt.text(bar.get_x() + bar.get_width()/2., height,
+             f'{round(height)}',
+             ha="center", va="bottom", fontsize=10)
 plt.show()
 
 # Comparación del tiempo de detección
 plt.figure(figsize=(8, 5))
-plt.bar(["No SBOM", "SBOM"], [avg_detect_no, avg_detect_with], color=["red", "green"])
+bars = plt.bar(["No SBOM", "SBOM"], [avg_detect_no, avg_detect_with], color=["red", "green"])
 plt.xlabel("Escenario")
 plt.ylabel("Tiempo promedio de detección (Días)")
 plt.title("Tiempo promedio de detección de vulnerabilidades: SBOM vs No SBOM")
+for bar in bars:
+    height = bar.get_height()
+    plt.text(bar.get_x() + bar.get_width()/2., height,
+             f'{round(height)}',
+             ha="center", va="bottom", fontsize=10)
 plt.show()
 
 # Comparación del tiempo de remediación
 plt.figure(figsize=(8, 5))
-plt.bar(["No SBOM", "SBOM"], [avg_remed_no, avg_remed_with], color=["red", "green"])
+bars = plt.bar(["No SBOM", "SBOM"], [avg_remed_no, avg_remed_with], color=["red", "green"])
 plt.xlabel("Escenario")
 plt.ylabel("Tiempo promedio de remediación (Días)")
 plt.title("Tiempo promedio de remediación de vulnerabilidades: SBOM vs No SBOM")
+for bar in bars:
+    height = bar.get_height()
+    plt.text(bar.get_x() + bar.get_width()/2., height,
+             f'{round(height)}',
+             ha="center", va="bottom", fontsize=10)
 plt.show()
 
 # Tiempo total desde la divulgación hasta la remediación
 plt.figure(figsize=(8, 5))
-plt.bar(["No SBOM", "SBOM"], [avg_total_no, avg_total_with], color=["red", "green"])
+bars = plt.bar(["No SBOM", "SBOM"], [avg_total_no, avg_total_with], color=["red", "green"])
 plt.xlabel("Escenario")
 plt.ylabel("Tiempo total para remediar (Días)")
 plt.title("Duración total de la vulnerabilidad: SBOM vs No SBOM")
+for bar in bars:
+    height = bar.get_height()
+    plt.text(bar.get_x() + bar.get_width()/2., height,
+             f'{round(height)}',
+             ha="center", va="bottom", fontsize=10)
 plt.show()

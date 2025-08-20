@@ -2,9 +2,6 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
-# ------------------------------
-# Load and prep the vulnerability dataset
-# ------------------------------
 df = pd.read_csv("tensorflow.csv")
 
 # Normalize/prepare fields
@@ -14,22 +11,17 @@ if 'tag_name' in df.columns and 'version' not in df.columns:
 if 'artifact_name' not in df.columns:
     raise ValueError("Expected column 'artifact_name' not found.")
 
-# Identify third-party artifacts (anything that’s not clearly TensorFlow itself)
+# Identificacion de componentes de terceros siempre y cuando el artifact_name no se encuentre el nombre del repositorio
 repo_root = "tensorflow"
 df['artifact_name'] = df['artifact_name'].astype(str)
 df['is_third_party'] = ~df['artifact_name'].str.lower().str.contains(repo_root)
 
-# Keep rows with dates
+# limpiar aquellas lineas que no tengan fechas
 df = df.dropna(subset=['release_date'])
 df = df.sort_values('release_date')
 
-# ------------------------------
-# Metric B.31 context (ISO 27004)
-#   B.31 = average % of relevant security requirements addressed in third-party agreements
-# ------------------------------
-
-# ### SYNTHETIC AGREEMENTS GENERATION ###
-# 1) Build a pool of 3rd-party artifact names
+# Generacion de acuerdos sinteticos
+# Se crea un pool de posibles artifact_name de terceros
 third_party_artifacts = (
     df.loc[df['is_third_party'], 'artifact_name']
       .dropna()
@@ -39,7 +31,7 @@ n_artifacts = len(third_party_artifacts)
 if n_artifacts == 0:
     raise ValueError("No third-party artifacts found to simulate agreements.")
 
-# 2) Create a pool of agreements and categories
+# Generacion de grupos de acuerdos y categorias
 rng = np.random.default_rng(42)
 
 # Number of distinct agreements (let’s allow multiple artifacts to map to same agreement)
@@ -47,7 +39,7 @@ n_agreements = max(12, min(60, int(np.ceil(n_artifacts * 0.6))))
 agreement_ids = [f"AGR-{i:04d}" for i in range(1, n_agreements+1)]
 
 categories = ["Open Source", "Commercial", "SaaS", "Contractor"]
-cat_probs = [0.55, 0.20, 0.15, 0.10]  # bias toward OSS in real repos
+cat_probs = [0.55, 0.20, 0.15, 0.10]
 
 agreements_df = pd.DataFrame({
     "agreement_id": agreement_ids,
@@ -83,10 +75,7 @@ artifact_to_agreement = pd.DataFrame({
 # 5) Attach agreement_id to each CVE row (only 3rd-party rows will match)
 df = df.merge(artifact_to_agreement, on='artifact_name', how='left')
 
-# ------------------------------
-# B.31 by reporting period (collect quarterly, report semi-annually)
 # We'll compute quarterly averages of % addressed across the UNIQUE agreements that appear in that quarter.
-# ------------------------------
 df['year_quarter'] = df['release_date'].dt.to_period('Q').astype(str)
 
 # Agreements that were "active" in a quarter = any vuln row with that agreement appears that quarter
@@ -110,25 +99,18 @@ b31_by_half = (b31_by_q
                .mean()
                .sort_values(['year','half']))
 
-# ------------------------------
-# Vulnerability counts per version/date (like your current plot)
-# ------------------------------
+# Conteo de vulnerabilidades per version/fecha
 third_party_df = df[df['is_third_party']].copy()
 vuln_count = (third_party_df
               .groupby('version', as_index=False)['cve_id']
               .count()
               .rename(columns={'cve_id':'vulnerabilities'}))
 
-release_dates = (df.groupby('version', as_index=False)['release_date']
-                   .min())
+release_dates = (df.groupby('version', as_index=False)['release_date'].min())
 vuln_count = vuln_count.merge(release_dates, on='version', how='left').sort_values('release_date')
 
-# ------------------------------
-# SBOM adoption scenarios (apply to both vulnerabilities and B.31 as “process uplift”)
-# ------------------------------
+# Reduccion de vulnerabilidades desde terceros
 rng = np.random.default_rng(123)
-
-# Reductions in third-party vulnerabilities
 vuln_count['sbom_basic']    = (vuln_count['vulnerabilities'] * (1 - rng.uniform(0.10, 0.30, len(vuln_count)))).astype(int)
 vuln_count['sbom_mature']   = (vuln_count['vulnerabilities'] * (1 - rng.uniform(0.30, 0.50, len(vuln_count)))).astype(int)
 vuln_count['sbom_advanced'] = (vuln_count['vulnerabilities'] * (1 - rng.uniform(0.50, 0.70, len(vuln_count)))).astype(int)
@@ -141,14 +123,9 @@ b31_by_half['b31_basic']    = uplift(b31_by_half['b31_pct_avg']/100,   0.03, 0.0
 b31_by_half['b31_mature']   = uplift(b31_by_half['b31_pct_avg']/100,   0.07, 0.15) * 100
 b31_by_half['b31_advanced'] = uplift(b31_by_half['b31_pct_avg']/100,   0.12, 0.25) * 100
 
-# ------------------------------
 # Results (prints)
-# ------------------------------
 print("=== Agreements (synthetic) sample ===")
 print(agreements_df.sample(5, random_state=7))
-
-#print("\n=== Quarterly B.31 (avg % addressed) sample ===")
-#print(b31_by_q.head())
 
 print("\n=== Semi-annual B.31 with SBOM uplift ===")
 print(b31_by_half[['year','half','b31_pct_avg','b31_basic','b31_mature','b31_advanced']])
@@ -156,19 +133,37 @@ print(b31_by_half[['year','half','b31_pct_avg','b31_basic','b31_mature','b31_adv
 print("\n=== Vulnerabilities with SBOM scenarios (first 10 rows) ===")
 print(vuln_count[['release_date','version','vulnerabilities','sbom_basic','sbom_mature','sbom_advanced']].head(10))
 
-# ------------------------------
-# Charts
-# ------------------------------
-# 1) Vulnerabilities over time (NO SBOM vs scenarios)
-plt.figure(figsize=(11,5))
-plt.plot(vuln_count['release_date'], vuln_count['vulnerabilities'], marker='o', color='red', label='No SBOM')
-plt.plot(vuln_count['release_date'], vuln_count['sbom_basic'], marker='o', color="blue", linestyle=':', label='SBOM (Básico)')
-plt.plot(vuln_count['release_date'], vuln_count['sbom_mature'], marker='o', color="green", linestyle=':', label='SBOM (Maduro)')
-plt.plot(vuln_count['release_date'], vuln_count['sbom_advanced'], marker='o', color="purple", linestyle=':', label='SBOM (Avanzado)')
-plt.title('Impacto del uso de SBOM en vulnerabilidades de terceros')
-plt.xlabel('Fecha Liberación')
-plt.ylabel('Número de vulnerabilidades de terceros')
-plt.grid(True, linestyle='--', alpha=0.5)
-plt.legend()
+fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(12, 10))
+ax1.plot(vuln_count['release_date'], vuln_count['vulnerabilities'], 
+         marker='o', color='red', label='No SBOM')
+ax1.plot(vuln_count['release_date'], vuln_count['sbom_basic'], 
+         marker='o', color="blue", linestyle=':', label='SBOM (Básico)')
+ax1.plot(vuln_count['release_date'], vuln_count['sbom_mature'], 
+         marker='o', color="green", linestyle=':', label='SBOM (Intermedio)')
+ax1.plot(vuln_count['release_date'], vuln_count['sbom_advanced'], 
+         marker='o', color="purple", linestyle=':', label='SBOM (Avanzado)')
+ax1.set_title('Impacto del SBOM en vulnerabilidades de terceros')
+ax1.set_ylabel('Número de vulnerabilidades')
+ax1.legend()
+ax1.grid(True, linestyle='--')
+
+# Mejoramiento de la metrica B.31
+# Convertir períodos semestrales a fecha y hora para su visualizacion
+b31_by_half['period'] = pd.to_datetime(b31_by_half['year'].astype(str) + 
+                                  np.where(b31_by_half['half'] == 'H1', '-01-01', '-07-01'))
+ax2.plot(b31_by_half['period'], b31_by_half['b31_pct_avg'], 
+         marker='s', color='black', label='Sin SBOM')
+ax2.plot(b31_by_half['period'], b31_by_half['b31_basic'], 
+         marker='s', color="blue", linestyle=':', label='SBOM (Básico)')
+ax2.plot(b31_by_half['period'], b31_by_half['b31_mature'], 
+         marker='s', color="green", linestyle=':', label='SBOM (Intermedio)')
+ax2.plot(b31_by_half['period'], b31_by_half['b31_advanced'], 
+         marker='s', color="purple", linestyle=':', label='SBOM (Avanzado)')
+ax2.set_title('Evolución de la métrica B.31 - Seguridad en acuerdos con terceros')
+ax2.set_ylabel('Porcentaje de requisitos abordados')
+ax2.set_xlabel('Periodo')
+ax2.legend()
+ax2.grid(True, linestyle='--')
+
 plt.tight_layout()
 plt.show()

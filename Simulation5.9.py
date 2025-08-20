@@ -60,7 +60,7 @@ def simulate_sbom_effect(risk, release_date, model='advanced'):
         'Crítico': [sbom_factor * 0.85, 1 - sbom_factor * 0.85],
         'Alto': [sbom_factor * 0.75, 1 - sbom_factor * 0.75],
         'Medio': [sbom_factor * 0.65, 1 - sbom_factor * 0.65],
-        'Bajo': [1.0, 0.0],
+        'Bajo': [1.0, 0.0]
     }
     
     if risk in transition_probs:
