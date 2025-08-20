@@ -33,8 +33,8 @@ def affected_systems_with_sbom(cvss_score, cve_count):
     else:
         base = 1 # Bajo/Medio: 1 sistema
     # Se asume que el uso del SBOM evita grandes implementaciones de versiones altamente vulnerables
-    extra = 0 # No hay impacto extra en este escenario
-    return base + extra
+    #extra = 0 # No hay impacto extra en este escenario
+    return base #+ extra
 
 # Se aplican las funciones para obtener el número de sistemas afectados por CVE por escenario
 df['Affected_Systems_No_SBOM'] = df.apply(lambda x: affected_systems_no_sbom(x['base_score'], x['cve_count']), axis=1)

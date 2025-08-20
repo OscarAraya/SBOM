@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
-df = pd.read_csv("tensorflow.csv")
+df = pd.read_csv("vercel.csv")
 df["base_score"] = pd.to_numeric(df["base_score"], errors="coerce")
 
 # Categorizar la severidad según la puntuación CVSS
@@ -59,29 +59,26 @@ mttr_improvement = ((MTTR_no_sbom - MTTR_with_sbom) / MTTR_no_sbom) * 100
 
 print("Mejora del MTTR:", mttr_improvement)
 
-fig, axes = plt.subplots(1, 2, figsize=(12, 6))
-
 # Reducción de incidentes
-axes[0].bar(["No SBOM", "SBOM"], [total_incidents_no_sbom, total_incidents_with_sbom], color=["red", "green"])
-axes[0].set_title("Total de incidentes con o sin SBOM")
-axes[0].set_ylabel("Recuento de incidentes")
-axes[0].tick_params(axis="both", labelsize=14)
-for bar in axes[0].patches:
+plt.figure(figsize=(8, 5))
+bars = plt.bar(["No SBOM", "SBOM"], [total_incidents_no_sbom, total_incidents_with_sbom], color=["red", "green"])
+plt.ylabel("Recuento de incidentes")
+plt.title("Total de incidentes con o sin SBOM")
+for bar in bars:
     height = bar.get_height()
-    axes[0].annotate(f"{int(height)}",
-                     (bar.get_x() + bar.get_width() / 2, height),
-                     ha="center", va="bottom", fontsize=10)
+    plt.text(bar.get_x() + bar.get_width()/2., height,
+             f'{round(height)}',
+             ha="center", va="bottom", fontsize=10)
+plt.show()
 
 # Comparación MTTR
-axes[1].bar(["No SBOM", "SBOM"], [MTTR_no_sbom, MTTR_with_sbom], color=["red", "green"])
-axes[1].set_title("Tiempo promedio de Reparación")
-axes[1].set_ylabel("Días")
-axes[1].tick_params(axis="both", labelsize=14)
-for bar in axes[1].patches:
+plt.figure(figsize=(8, 5))
+bars = plt.bar(["No SBOM", "SBOM"], [MTTR_no_sbom, MTTR_with_sbom], color=["red", "green"])
+plt.ylabel("Días")
+plt.title("Tiempo promedio de Reparación")
+for bar in bars:
     height = bar.get_height()
-    axes[1].annotate(f"{round(height)}",
-                     (bar.get_x() + bar.get_width() / 2, height),
-                     ha="center", va="bottom", fontsize=10)
-
-plt.tight_layout()
+    plt.text(bar.get_x() + bar.get_width()/2., height,
+             f'{round(height)}',
+             ha="center", va="bottom", fontsize=10)
 plt.show()
