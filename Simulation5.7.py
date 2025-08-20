@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
-df = pd.read_csv("vercel.csv")
+df = pd.read_csv("tensorflow.csv")
 df["base_score"] = pd.to_numeric(df["base_score"], errors="coerce")
 
 # Categorizar la severidad según la puntuación CVSS
@@ -20,7 +20,7 @@ def simulate_incidents(dataframe, prob_mapping, seed=42):
     np.random.seed(seed)
     df_sim = dataframe.copy()
     # Se simula la generacion de un incidente dependiendo de la severidad 
-    # Por ejemplo, con un CVE Alto, existe un 80% de chance de que el numero aleatorio sea < 0.80.
+    # Por ejemplo, con un CVE Alto, existe un 80% de probabilidad de que el numero aleatorio sea < 0.80.
     df_sim["Incident"] = [1 if np.random.rand() < prob_mapping.get(sev, 0) else 0 for sev in df_sim["Severity"]]
     return df_sim
 
@@ -29,8 +29,8 @@ df_no_sbom = simulate_incidents(df, prob_no_sbom)
 df_with_sbom = simulate_incidents(df, prob_with_sbom)
 
 # Definir tiempos medios de Reparación
-mean_time_no_sbom = {"Critical": 90, "High": 60, "Medium": 30, "Low": 15}
-mean_time_with_sbom = {"Critical": 70, "High": 45, "Medium": 20, "Low": 10 }
+mean_time_no_sbom = {"Critical": np.random.randint(25, 76), "High": np.random.randint(40, 101), "Medium": np.random.randint(80, 161), "Low": np.random.randint(80, 161)}
+mean_time_with_sbom = {"Critical": np.random.randint(5, 21), "High": np.random.randint(15, 61), "Medium": np.random.randint(50, 151), "Low": np.random.randint(50, 151)}
 
 # Asignar tiempos de Reparación
 np.random.seed(42)
