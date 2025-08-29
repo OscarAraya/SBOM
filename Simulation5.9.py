@@ -31,7 +31,7 @@ def get_sbom_effect_factor(release_date, patch_availability=True):
     years_since_release = (pd.to_datetime('today') - release_date).days / 365
     if patch_availability:
         if years_since_release > 2:
-            return 0.90  # Se asume: Las versiones anteriores tienen más parches disponibles
+            return 0.90  # Se asume: Las versiones antigüas tienen parches disponibles
         elif years_since_release > 1:
             return 0.75
         else:
@@ -41,6 +41,7 @@ def get_sbom_effect_factor(release_date, patch_availability=True):
 
 # Función para simular la probabilidad de disponibilidad del parche en función de la antigüedad de la vulnerabilidad
 def has_patch_available(release_date):
+    # Siendo el minimo 0.9 (90%) o en caso de que hayan transcurrido mas de 1000 dias
     return np.random.rand() < min(0.9, (pd.to_datetime('today') - release_date).days / 1000)
 
 # Función para aplicar diferentes modelos SBOM
@@ -56,16 +57,33 @@ def simulate_sbom_effect(risk, release_date, model='advanced'):
     patch_available = has_patch_available(release_date)
     sbom_factor = get_sbom_effect_factor(release_date, patch_availability=patch_available) * get_sbom_model_factor(model)
     
+    # Se definen probabilidades de transicion de riesgos, e.g. pasar de Critico a Alto/Medio
     transition_probs = {
-        'Crítico': [sbom_factor * 0.85, 1 - sbom_factor * 0.85],
+        'Crítico': sbom_factor * 0.85,
+        'Alto': sbom_factor * 0.75,
+        'Medio': sbom_factor * 0.65,
+        'Bajo': 0.0
+    }
+    """
+    'Crítico': [sbom_factor * 0.85, 1 - sbom_factor * 0.85],
         'Alto': [sbom_factor * 0.75, 1 - sbom_factor * 0.75],
         'Medio': [sbom_factor * 0.65, 1 - sbom_factor * 0.65],
         'Bajo': [1.0, 0.0]
-    }
     
     if risk in transition_probs:
+        # Se asigna un nivel de riesgo de forma aleatoria basado en las probabilidades de transicion
         return np.random.choice(['Bajo', 'Medio', 'Alto', 'Crítico'][:len(transition_probs[risk])], 
                                 p=transition_probs[risk])
+    """
+
+    if risk in transition_probs:
+        if np.random.rand() < transition_probs[risk]:
+            # If the reduction triggers, move down one risk level
+            severity_levels = ['Crítico', 'Alto', 'Medio', 'Bajo']
+            current_index = severity_levels.index(risk)
+            new_index = min(current_index + 1, len(severity_levels) - 1) # Se mueve un nivel hacia abajo
+            return severity_levels[new_index]
+        
     return risk
 
 # Aplicar el efecto SBOM considerando la disponibilidad de parches
@@ -88,6 +106,7 @@ heatmap_data_sbom = heatmap_data_sbom.reindex(columns=risk_levels, fill_value=0)
 # Visualización
 fig, axes = plt.subplots(1, 2, figsize=(18, 8), sharey=True)
 
+# https://seaborn.pydata.org/generated/seaborn.heatmap.html
 sns.heatmap(heatmap_data_no_sbom, annot=True, cmap='Reds', ax=axes[0], fmt=".0f")
 axes[0].set_title('Niveles de riesgo por Release (No SBOM)', fontsize=14)
 axes[0].set_ylabel("Versión", fontsize=12)

@@ -106,21 +106,23 @@ print(f"Tiempo total promedio para remediar(SBOM): {avg_total_with:.1f} días")
 
 # Porcentajes de mejora
 vuln_improv_perc = ((panorama_no_sbom - panorama_with_sbom) / panorama_no_sbom) * 100
-detec_imporv_perc = ((avg_detect_no - avg_detect_with) / avg_detect_no) * 100
+detec_improv_perc = ((avg_detect_no - avg_detect_with) / avg_detect_no) * 100
 remed_improv_perc = ((avg_remed_no - avg_remed_with) / avg_remed_no) * 100
 total_improv_remed_perc = ((avg_total_no - avg_total_with) / avg_total_no) * 100
 
 print(f"Panorama de vulnerabilidad total: {vuln_improv_perc:.2f} %")
-print(f"Tiempo promedio de detección:       {detec_imporv_perc:.1f} %")
+print(f"Tiempo promedio de detección:       {detec_improv_perc:.1f} %")
 print(f"Tiempo promedio de remediación:     {remed_improv_perc:.1f} %")
 print(f"Tiempo total promedio para remediar: {total_improv_remed_perc:.1f} %")
 
+colors = {"#6C757D", "#1F3C88"} # "red", "green"
+
 # Comparación del panorama de vulnerabilidades
 plt.figure(figsize=(8, 5))
-bars = plt.bar(["No SBOM", "SBOM"], [panorama_no_sbom, panorama_with_sbom], color=["red", "green"])
+bars = plt.bar(["sin SBOM", "SBOM"], [panorama_no_sbom, panorama_with_sbom], color=colors)
 plt.xlabel("Escenario")
 plt.ylabel("Puntuación del panorama de vulnerabilidad")
-plt.title("Exposición a la vulnerabilidad: SBOM vs No SBOM")
+plt.title("Exposición a la vulnerabilidad: sin SBOM vs SBOM")
 for bar in bars:
     height = bar.get_height()
     plt.text(bar.get_x() + bar.get_width()/2., height,
@@ -130,10 +132,10 @@ plt.show()
 
 # Comparación del tiempo de detección
 plt.figure(figsize=(8, 5))
-bars = plt.bar(["No SBOM", "SBOM"], [avg_detect_no, avg_detect_with], color=["red", "green"])
+bars = plt.bar(["sin SBOM", "SBOM"], [avg_detect_no, avg_detect_with], color=colors)
 plt.xlabel("Escenario")
 plt.ylabel("Tiempo promedio de detección (Días)")
-plt.title("Tiempo promedio de detección de vulnerabilidades: SBOM vs No SBOM")
+plt.title("Tiempo promedio de detección de vulnerabilidades: sin SBOM vs SBOM")
 for bar in bars:
     height = bar.get_height()
     plt.text(bar.get_x() + bar.get_width()/2., height,
@@ -143,10 +145,10 @@ plt.show()
 
 # Comparación del tiempo de remediación
 plt.figure(figsize=(8, 5))
-bars = plt.bar(["No SBOM", "SBOM"], [avg_remed_no, avg_remed_with], color=["red", "green"])
+bars = plt.bar(["sin SBOM", "SBOM"], [avg_remed_no, avg_remed_with], color=colors)
 plt.xlabel("Escenario")
 plt.ylabel("Tiempo promedio de remediación (Días)")
-plt.title("Tiempo promedio de remediación de vulnerabilidades: SBOM vs No SBOM")
+plt.title("Tiempo promedio de remediación de vulnerabilidades: sin SBOM vs SBOM")
 for bar in bars:
     height = bar.get_height()
     plt.text(bar.get_x() + bar.get_width()/2., height,
@@ -156,10 +158,10 @@ plt.show()
 
 # Tiempo total desde la divulgación hasta la remediación
 plt.figure(figsize=(8, 5))
-bars = plt.bar(["No SBOM", "SBOM"], [avg_total_no, avg_total_with], color=["red", "green"])
+bars = plt.bar(["sin SBOM", "SBOM"], [avg_total_no, avg_total_with], color=colors)
 plt.xlabel("Escenario")
 plt.ylabel("Tiempo total para remediar (Días)")
-plt.title("Duración total de la vulnerabilidad: SBOM vs No SBOM")
+plt.title("Duración total de la vulnerabilidad: sin SBOM vs SBOM")
 for bar in bars:
     height = bar.get_height()
     plt.text(bar.get_x() + bar.get_width()/2., height,

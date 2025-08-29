@@ -20,7 +20,7 @@ def simulate_incidents(dataframe, prob_mapping, seed=42):
     np.random.seed(seed)
     df_sim = dataframe.copy()
     # Se simula la generacion de un incidente dependiendo de la severidad 
-    # Por ejemplo, con un CVE Alto, existe un 80% de probabilidad de que el numero aleatorio sea < 0.80.
+    # e.g. CVE: Alto, existe un 80% de probabilidad de que el numero aleatorio sea < 0.80.
     df_sim["Incident"] = [1 if np.random.rand() < prob_mapping.get(sev, 0) else 0 for sev in df_sim["Severity"]]
     return df_sim
 
@@ -36,12 +36,12 @@ mean_time_with_sbom = {"Critical": np.random.randint(5, 21), "High": np.random.r
 np.random.seed(42)
 df_no_sbom["RemediationTime"] = [
     # Si se reporto como incidente, se realiza el calculo. Se define el tiempo de reparacion dependiendo de la severidad
-    # Si no se encuentra la categoria, se utiliza 10 como predeterminado.
+    # Si no se encuentra la categoria, se utiliza 10 como predeterminado
     mean_time_no_sbom.get(sev, 10) * (1 + (np.random.rand() - 0.5) * 0.4) if inc else np.nan
     for sev, inc in zip(df_no_sbom["Severity"], df_no_sbom["Incident"])
 ]
 df_with_sbom["RemediationTime"] = [
-    # Si no se encuentra la categoria, se utiliza 7 como predeterminado.
+    # Si no se encuentra la categoria, se utiliza 7 como predeterminado
     mean_time_with_sbom.get(sev, 7) * (1 + (np.random.rand() - 0.5) * 0.4) if inc else np.nan
     for sev, inc in zip(df_with_sbom["Severity"], df_with_sbom["Incident"])
 ]
@@ -59,11 +59,13 @@ mttr_improvement = ((MTTR_no_sbom - MTTR_with_sbom) / MTTR_no_sbom) * 100
 
 print("Mejora del MTTR:", mttr_improvement)
 
+colors = {"#6C757D", "#1F3C88"} # "red", "green"
+
 # Reducción de incidentes
 plt.figure(figsize=(8, 5))
-bars = plt.bar(["No SBOM", "SBOM"], [total_incidents_no_sbom, total_incidents_with_sbom], color=["red", "green"])
+bars = plt.bar(["sin SBOM", "SBOM"], [total_incidents_no_sbom, total_incidents_with_sbom], color=colors)
 plt.ylabel("Recuento de incidentes")
-plt.title("Total de incidentes con o sin SBOM")
+plt.title("Total de incidentes sin y con SBOM")
 for bar in bars:
     height = bar.get_height()
     plt.text(bar.get_x() + bar.get_width()/2., height,
@@ -73,9 +75,9 @@ plt.show()
 
 # Comparación MTTR
 plt.figure(figsize=(8, 5))
-bars = plt.bar(["No SBOM", "SBOM"], [MTTR_no_sbom, MTTR_with_sbom], color=["red", "green"])
+bars = plt.bar(["sin SBOM", "SBOM"], [MTTR_no_sbom, MTTR_with_sbom], color=colors)
 plt.ylabel("Días")
-plt.title("Tiempo promedio de Reparación")
+plt.title("Tiempo promedio de Remediación")
 for bar in bars:
     height = bar.get_height()
     plt.text(bar.get_x() + bar.get_width()/2., height,

@@ -1,100 +1,168 @@
-# Being used
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
 df = pd.read_csv("tensorflow.csv")
 
-# Se convierte published_at en datetime
-df['release_date'] = pd.to_datetime(df['published_at'], errors='coerce')
+df['release_date'] = pd.to_datetime(df.get('published_at'), errors='coerce')
+if 'tag_name' in df.columns and 'version' not in df.columns:
+    df.rename(columns={'tag_name': 'version'}, inplace=True)
+if 'artifact_name' not in df.columns:
+    raise ValueError("Column 'artifact_name' not found.")
 
-# Ordene el DataFrame por fecha de liberación
-df.sort_values('release_date', inplace=True)
+# Todo aquel artefacto diferente al repo se considera como tercero
+repo_root = "tensorflow"
+df['artifact_name'] = df['artifact_name'].astype(str)
+df['is_third_party'] = ~df['artifact_name'].str.lower().str.contains(repo_root)
 
-# Identificar artefactos de terceros (suponiendo que repositorio principal es "repo_name/repo_name")
-main_repo = "tensorflow/tensorflow" 
-df["is_third_party"] = ~df["artifact_name"].apply(lambda x: str(x) in main_repo)
+df = df.dropna(subset=['release_date'])
+df = df.sort_values('release_date')
 
-# Si la información del Release se almacena en 'tag_name', se cambia el nombre a 'versión'
-if "tag_name" in df.columns:
-    df.rename(columns={"tag_name": "version"}, inplace=True)
-else:
-    raise ValueError("Release/version column not found. Please check your CSV.")
+third_party_artifacts = (
+    df.loc[df['is_third_party'], 'artifact_name']
+    .dropna()
+    .unique()
+)
+n_artifacts = len(third_party_artifacts)
+if n_artifacts == 0:
+    raise ValueError("No third-party artifacts found to simulate agreements.")
 
-# Solamente se incluyen vulnerabilidades de terceros
-third_party_df = df[df["is_third_party"]]
+# Creacion del set de acuerdos
+rng = np.random.default_rng(42)
+n_agreements = max(12, min(60, int(np.ceil(n_artifacts * 0.6))))
+agreement_ids = [f"AGR-{i:04d}" for i in range(1, n_agreements+1)]
 
-# Agrupar por versión para contabilizar las vulnerabilidades
-vuln_count = third_party_df.groupby("version")["cve_id"].count().reset_index(name="vulnerabilities")
+categories = ["Open Source", "Commercial", "Contractor"]
+cat_probs = [0.55, 0.30, 0.15]  # Probabilidades de seleccion de categorias
 
-# Relaciona cada versión con su fecha de liberación más temprana
-release_dates = df.groupby("version")["release_date"].min().reset_index()
-vuln_count = pd.merge(vuln_count, release_dates, on="version", how="left")
+agreements_df = pd.DataFrame({
+    "agreement_id": agreement_ids,
+    "category": rng.choice(categories, size=n_agreements, p=cat_probs),
+})
 
-# Se ordena por release_date
-vuln_count.sort_values("release_date", inplace=True)
+# Se establecen los niveles de cumplimiento de cada categoria
+required_total = rng.integers(8, 26, size=n_agreements)
+base_rates = []
+for cat in agreements_df['category']:
+    if cat in ("Commercial"):
+        base_rates.append(rng.uniform(0.75, 0.95))
+    elif cat == "Open Source":
+        base_rates.append(rng.uniform(0.60, 0.90))
+    else:  # Contractor
+        base_rates.append(rng.uniform(0.65, 0.92))
+base_rates = np.array(base_rates)
 
-# Se simulan tres escenarios SBOM con diferentes niveles de madurez
-np.random.seed(42)  # Ensuring reproducibility
+# Calculo del cumplimiento
+addr_total = np.minimum(required_total, np.floor(required_total * base_rates)).astype(int)
 
-# Básico: reducción del 10-30%
-vuln_count["reduction_factor_basic"] = np.random.uniform(0.1, 0.3, size=len(vuln_count))
-vuln_count["vulnerabilities_sbom_basic"] = (vuln_count["vulnerabilities"] * (1 - vuln_count["reduction_factor_basic"])).astype(int)
+agreements_df['required_total'] = required_total
+agreements_df['addressed_total'] = addr_total
 
-# Maduro: reducción del 30-50%
-vuln_count["reduction_factor_mature"] = np.random.uniform(0.3, 0.5, size=len(vuln_count))
-vuln_count["vulnerabilities_sbom_mature"] = (vuln_count["vulnerabilities"] * (1 - vuln_count["reduction_factor_mature"])).astype(int)
+# Calculo de la metrica B31.
+agreements_df['b31_pct'] = 100 * agreements_df['addressed_total'] / agreements_df['required_total']
 
-# Avanzado: reducción del 50-70%
-vuln_count["reduction_factor_advanced"] = np.random.uniform(0.5, 0.7, size=len(vuln_count))
-vuln_count["vulnerabilities_sbom_advanced"] = (vuln_count["vulnerabilities"] * (1 - vuln_count["reduction_factor_advanced"])).astype(int)
+# Mapeo de los acuerdos a artefactos de manera aleatoria
+artifact_to_agreement = pd.DataFrame({
+    "artifact_name": third_party_artifacts,
+    "agreement_id": rng.choice(agreement_ids, size=n_artifacts, replace=True)
+})
 
-# Comparación sobre el tiempo
-plt.figure(figsize=(12, 6))
-plt.plot(
-    vuln_count["release_date"],
-    vuln_count["vulnerabilities"],
-    marker="o",
-    color="red",
-    linestyle="-",
-    label="NO SBOM"
+# Se mapea el acuerdo con los CVE
+df = df.merge(artifact_to_agreement, on='artifact_name', how='left')
+
+# Separacion de fechas a semestral
+df['year'] = df['release_date'].dt.year
+df['half'] = np.where(df['release_date'].dt.month <= 6, 'H1', 'H2')
+
+# Acuerdos activos en mitades
+agreements_by_half = (
+    df.loc[df['is_third_party'] & df['agreement_id'].notna(), 
+           ['year', 'half', 'agreement_id']]
+    .drop_duplicates()
+    .merge(agreements_df[['agreement_id', 'b31_pct']], on='agreement_id', how='left')
 )
 
-plt.plot(
-    vuln_count["release_date"],
-    vuln_count["vulnerabilities_sbom_basic"],
-    marker="o",
-    color="blue",
-    linestyle=":",
-    label="SBOM (Básico)"
-)
+# Calculo del promedio B.31 semestralmente
+b31_by_half = (agreements_by_half
+               .groupby(['year', 'half'], as_index=False)['b31_pct']
+               .mean()
+               .rename(columns={'b31_pct': 'b31_pct_avg'})
+               .sort_values(['year', 'half']))
 
-plt.plot(
-    vuln_count["release_date"],
-    vuln_count["vulnerabilities_sbom_mature"],
-    marker="o",
-    color="green",
-    linestyle=":",
-    label="SBOM (Maduro)"
-)
+# Conteo de vulnerabilidades por version y fecha
+third_party_df = df[df['is_third_party']].copy()
+vuln_count = (third_party_df
+              .groupby('version', as_index=False)['cve_id']
+              .count()
+              .rename(columns={'cve_id': 'vulnerabilities'}))
 
-plt.plot(
-    vuln_count["release_date"],
-    vuln_count["vulnerabilities_sbom_advanced"],
-    marker="o",
-    color="purple",
-    linestyle=":",
-    label="SBOM (Avanzado)"
-)
+release_dates = (df.groupby('version', as_index=False)['release_date'].min())
+vuln_count = vuln_count.merge(release_dates, on='version', how='left').sort_values('release_date')
 
-plt.xlabel("Fecha Liberación")
-plt.ylabel("Número de vulnerabilidades de terceros")
-plt.title("Impacto del uso de SBOM en vulnerabilidades de terceros")
-plt.legend()
-plt.grid(True, linestyle='--', alpha=0.6)
+# Combinacion de datos de vulnerabilidades con metricas B.31
+vuln_count['year'] = vuln_count['release_date'].dt.year
+vuln_count['half'] = np.where(vuln_count['release_date'].dt.month <= 6, 'H1', 'H2')
+
+# Se agregan las metricas al set de vulnerabilidades
+vuln_count = vuln_count.merge(b31_by_half[['year', 'half', 'b31_pct_avg']], 
+                              on=['year', 'half'], how='left')
+
+# Se llenan valores vacios con el promedio en general
+overall_b31_avg = b31_by_half['b31_pct_avg'].mean()
+vuln_count['b31_pct_avg'].fillna(overall_b31_avg, inplace=True)
+
+def calculate_vulnerability_reduction(vulnerabilities, b31_pct, sbom_level):
+    # Factor de reduccion en base al nivdel de madurez del SBOM
+    base_reductions = {
+        'basic': np.random.uniform(0.10, 0.20),
+        'mature': np.random.uniform(0.20, 0.30),
+        'advanced': np.random.uniform(0.30, 0.40)
+    }
+
+    # B.31 effectiveness multiplier (0.5 to 1.5)
+    b31_multiplier = 0.5 + (b31_pct / 100)
+    
+    # Calculo de reduccion
+    reduction = base_reductions[sbom_level] * b31_multiplier
+    
+    # Metodo para asegurarse que las reduccion esten en un rango razonable
+    reduction = min(reduction, 0.60)
+    
+    return int(vulnerabilities * (1 - reduction))
+
+# Aplicacion de la reduccion de la vulnerabilidades basado en el cumplimiento de la metrica B.31 y el nivel de SBOM
+rng = np.random.default_rng(123)
+for idx, row in vuln_count.iterrows():
+    vuln_count.at[idx, 'sbom_basic'] = calculate_vulnerability_reduction(
+        row['vulnerabilities'], row['b31_pct_avg'], 'basic')
+    vuln_count.at[idx, 'sbom_mature'] = calculate_vulnerability_reduction(
+        row['vulnerabilities'], row['b31_pct_avg'], 'mature')
+    vuln_count.at[idx, 'sbom_advanced'] = calculate_vulnerability_reduction(
+        row['vulnerabilities'], row['b31_pct_avg'], 'advanced')
+
+print("Acuerdos sintéticos")
+print(agreements_df.sample(5, random_state=7))
+
+print("Número de vulnerabilidades por escenario")
+print(vuln_count[['release_date', 'version', 'vulnerabilities', 'sbom_basic', 'sbom_mature', 'sbom_advanced']].head(10))
+
+fig, (ax1) = plt.subplots(1, 1, figsize=(15, 8))
+
+ax1.plot(vuln_count['release_date'], vuln_count['vulnerabilities'], 
+         marker='o', color='red', label='Sin SBOM')
+ax1.plot(vuln_count['release_date'], vuln_count['sbom_basic'], 
+         marker='o', color="blue", linestyle='--', label='SBOM Básico')
+ax1.plot(vuln_count['release_date'], vuln_count['sbom_mature'], 
+         marker='o', color="green", linestyle='--', label='SBOM Intermedio')
+ax1.plot(vuln_count['release_date'], vuln_count['sbom_advanced'], 
+         marker='o', color="purple", linestyle='--', label='SBOM Avanzado')
+ax1.set_title('Impacto del SBOM en Vulnerabilidades de Terceros')
+ax1.set_ylabel('Número de Vulnerabilidades')
+ax1.legend()
+ax1.grid(True, linestyle='--')
+
 plt.tight_layout()
 plt.show()
-
 
 """
 Se utilizan distintos valores debido al nivel de adopcion y esto depende mucho de las herramientas que se esten utilizando.
@@ -103,9 +171,9 @@ https://nios.montana.edu/cyber/products/Impacts%20of%20Software%20Bill%20of%20Ma
 https://www.mckinsey.com/capabilities/risk-and-resilience/our-insights/cybersecurity/software-bill-of-materials-managing-software-cybersecurity-risks
 https://www.ox.security/sbom-tools-mitigating-supply-chain-risk-driving-compliance/
 
-Basic SBOM Adoption: 10-30% reduction (Blue)
-Mature SBOM Adoption: 30-50% reduction (Green)
-Advanced SBOM Adoption: 50-70% reduction (Purple)
+Basic SBOM Adoption: 10-20% reduction (Blue)
+Mature SBOM Adoption: 20-30% reduction (Green)
+Advanced SBOM Adoption: 30-40% reduction (Purple)
 
 El objetivo de este apartado es de evaluar el grado de como se aborda la seguridad en los acuerdos con terceros, sugerido por la métrica B.31 de seguridad de acuerdos con terceros del ISO 27004:2016. Esta métrica sugiere una formula en la cual se considere la cantidad de acuerdos y requerimientos acordados entre las partes de ambas organizaciones, sin embargo en este caso es difícil conseguir este tipo de información.
 Para este caso de uso se ha conseguido el nombre (artifact_name) y version (artifact_version) del componente vulnerado que se encuentra relacionado al CVE. Con esta información se ha decidido comparar el nombre del componente vulnerado con el nombre del repositorio, en caso que este no encuentre similitudes entre ambos este sera considerado como una biblioteca de terceros, por ende un acuerdo entre ambas partes.
