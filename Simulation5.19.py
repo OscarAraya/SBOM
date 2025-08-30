@@ -146,20 +146,20 @@ print(agreements_df.sample(5, random_state=7))
 print("Número de vulnerabilidades por escenario")
 print(vuln_count[['release_date', 'version', 'vulnerabilities', 'sbom_basic', 'sbom_mature', 'sbom_advanced']].head(10))
 
-fig, (ax1) = plt.subplots(1, 1, figsize=(15, 8))
+plt.figure(figsize=(15, 8))
 
-ax1.plot(vuln_count['release_date'], vuln_count['vulnerabilities'], 
+plt.plot(vuln_count['release_date'], vuln_count['vulnerabilities'], 
          marker='o', color='red', label='Sin SBOM')
-ax1.plot(vuln_count['release_date'], vuln_count['sbom_basic'], 
+plt.plot(vuln_count['release_date'], vuln_count['sbom_basic'], 
          marker='o', color="blue", linestyle='--', label='SBOM Básico')
-ax1.plot(vuln_count['release_date'], vuln_count['sbom_mature'], 
+plt.plot(vuln_count['release_date'], vuln_count['sbom_mature'], 
          marker='o', color="green", linestyle='--', label='SBOM Intermedio')
-ax1.plot(vuln_count['release_date'], vuln_count['sbom_advanced'], 
+plt.plot(vuln_count['release_date'], vuln_count['sbom_advanced'], 
          marker='o', color="purple", linestyle='--', label='SBOM Avanzado')
-ax1.set_title('Impacto del SBOM en Vulnerabilidades de Terceros')
-ax1.set_ylabel('Número de Vulnerabilidades')
-ax1.legend()
-ax1.grid(True, linestyle='--')
+plt.title('Impacto del SBOM en Vulnerabilidades de Terceros')
+plt.ylabel('Número de Vulnerabilidades')
+plt.legend()
+plt.grid(True, linestyle='--')
 
 plt.tight_layout()
 plt.show()
