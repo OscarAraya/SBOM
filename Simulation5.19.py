@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
-df = pd.read_csv("tensorflow.csv")
+df = pd.read_csv("vercel.csv")
 
 df['release_date'] = pd.to_datetime(df.get('published_at'), errors='coerce')
 if 'tag_name' in df.columns and 'version' not in df.columns:
@@ -11,7 +11,7 @@ if 'artifact_name' not in df.columns:
     raise ValueError("Column 'artifact_name' not found.")
 
 # Todo aquel artefacto diferente al repo se considera como tercero
-repo_root = "tensorflow"
+repo_root = "next"
 df['artifact_name'] = df['artifact_name'].astype(str)
 df['is_third_party'] = ~df['artifact_name'].str.lower().str.contains(repo_root)
 
@@ -81,6 +81,7 @@ agreements_by_half = (
     .drop_duplicates()
     .merge(agreements_df[['agreement_id', 'b31_pct']], on='agreement_id', how='left')
 )
+np.random.seed(42)
 
 # Calculo del promedio B.31 semestralmente
 b31_by_half = (agreements_by_half
@@ -119,13 +120,13 @@ def calculate_vulnerability_reduction(vulnerabilities, b31_pct, sbom_level):
         'advanced': np.random.uniform(0.30, 0.40)
     }
 
-    # B.31 effectiveness multiplier (0.5 to 1.5)
+    # B.31 como multiplicador de efectividad
     b31_multiplier = 0.5 + (b31_pct / 100)
     
     # Calculo de reduccion
     reduction = base_reductions[sbom_level] * b31_multiplier
     
-    # Metodo para asegurarse que las reduccion esten en un rango razonable
+    # Metodo para asegurarse que la reduccion este en un rango razonable
     reduction = min(reduction, 0.60)
     
     return int(vulnerabilities * (1 - reduction))
